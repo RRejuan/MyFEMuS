@@ -269,13 +269,9 @@ void CutFemWeightParabola<TypeIO, TypeA>::operator()(const int &s, const TypeA &
     abort();
   }
 
-
   _Co = _ATA * _f;
-
 //   cout << "c = " << _Co[0] ;
 //
-
-
   //time2 += clock() - time;
   //time = clock();
 
@@ -290,12 +286,42 @@ void CutFemWeightParabola<TypeIO, TypeA>::operator()(const int &s, const TypeA &
   weightCF.assign(_gn, 0);
   for(unsigned ig = 0; ig < _gn; ig++) {
 
-    if(_geomElemType == LINE || _geomElemType == QUAD || _geomElemType == HEX) {
+    if(_geomElemType == LINE || _geomElemType == QUAD || _geomElemType == HEX) {          //Question? it looks like in quad we are shifting the basis from (-1 to 1) to (0 to 1) But in triangle the only thing we didnot do it.
       for(unsigned k = 0; k < _dim; k++)  x[k] = 0.5 * (1. + _xgp[k][ig]);
     }
-    else if(_geomElemType == TRI) {
-      x[0] = (1. - _xgp[0][ig]);
-      x[1] = _xgp[1][ig];
+    else if(_geomElemType == TRI) {    // We change the basis here. For vertical parabola x*=1-x and y*=y . For Horizontal parabola x** = 1-y and y** = x ;
+      bool vertical = true;
+      bool xSpan = false;
+      bool ySpan = false;
+
+      if((p1.x < p3.x && p3.x < p2.x) || ( p1.x > p3.x && p3.x > p2.x)) xSpan = true ;
+      if((p1.y < p3.y && p3.y < p2.y) || ( p1.y > p3.y && p3.y > p2.y)) ySpan = true ;
+
+      cout << "xspan = " << xSpan << " yspan = "<< ySpan <<endl;
+      if(xSpan) {
+        if(ySpan) {
+          if(fabs(p1.x - p2.x) >= fabs(p1.y - p2.y)) vertical = true;
+          else vertical = false;
+        }
+        else {
+          vertical = true;
+        }
+      }
+      else {
+        if(ySpan) vertical = false;
+        else {
+          std::cout << " The parabola formed by this three points is not a function. Use line cut " << std::endl;
+
+        }
+      }
+      if (vertical){
+        x[0] = (1. - _xgp[0][ig]);
+        x[1] = _xgp[1][ig];
+      }
+      else{
+        x[0] = (1. - _xgp[1][ig]);
+        x[1] = _xgp[0][ig];
+      }
     }
     else if(_geomElemType == WEDGE) {
       x[0] = (1. - _xgp[0][ig]);
@@ -322,13 +348,11 @@ void CutFemWeightParabola<TypeIO, TypeA>::operator()(const int &s, const TypeA &
     }
     weightCF[ig] = static_cast<TypeIO>(weight);
   }
-
-//   if(wMap) {
-//     _WeightMap[s+1][_key] = weightCF;
-//   }
-
-//time3 += clock() - time;
-//std::cout << time1 << " " << time2 << " " << time3 << std::endl;
+    //   if(wMap) {
+    //     _WeightMap[s+1][_key] = weightCF;
+    //   }
+    //time3 += clock() - time;
+    //std::cout << time1 << " " << time2 << " " << time3 << std::endl;
 };
 
 
@@ -401,15 +425,4 @@ void CutFemWeightParabola<TypeIO, TypeA>::PolyBasis(const std::vector<double> &x
 }
 
 
-
-
-
-
-
-
 #endif
-
-
-
-
-
