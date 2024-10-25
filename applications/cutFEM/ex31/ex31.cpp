@@ -715,7 +715,7 @@ Type find_trig_area_2intersection_formula(const unsigned &m, const unsigned &n, 
 
     bool do_line = 0;
 
-    if (table == 1){
+    if (table == 1){ //we only use modified integrals if it is concave down
       if (k>0) {
         do_line = 1;
         Type delta = (b+1.)*(b+1.) - 4*k*d;
@@ -735,8 +735,48 @@ Type find_trig_area_2intersection_formula(const unsigned &m, const unsigned &n, 
       }
     }
 
-    else if(table ==2){
+    else if(table ==2){  // There are six possible cases we have to use modified integrals
      do_line = 1;
+     if(k>=0){//concave down (2 possible scenerio)
+      if(p1.x < p2.x){ //case (a) take highest p1.x
+        Type delta = (b+1.)*(b+1.) - 4*k*d;
+        if (delta >= 0){
+              Type sqrtdelta = sqrt(delta);
+              int sign = (k > 0) ? 1 : -1;
+              for(unsigned i = 0; i < 2; i++) {
+                Type x = (- (b+1) - sign * sqrtdelta) / (2 * k);
+    //          cout<< "Top x = "<< x<< endl;
+                if(x > 0 && x > p1.x) {
+                    p1.x = x;
+                }
+                sign *= -1;
+              }
+        }
+      }
+      else{ //case b and c  take lowest p1.x
+        Type delta = (b+1.)*(b+1.) - 4*k*d;
+        if (delta >= 0){
+              Type sqrtdelta = sqrt(delta);
+              int sign = (k > 0) ? -1 : 1;  //this gives us highest p1.x first then lowest.
+              for(unsigned i = 0; i < 2; i++) {
+                Type x = (- (b+1) - sign * sqrtdelta) / (2 * k);
+    //          cout<< "Top x = "<< x<< endl;
+                if(x > 0 && x > p1.x) {
+                    p1.x = x;
+                }
+                sign *= -1;
+              }
+        }
+      }
+     }
+     else{
+
+
+
+
+     }
+
+
     }
     else if (table == 3){
       if (k<0) {
@@ -834,10 +874,20 @@ Type find_trig_area_2intersection_formula(const unsigned &m, const unsigned &n, 
         }
       else if (table==2){ //TODO
         if (k>0){
-            if (p1.x>p2.x){
-
+            if (p1.x > p2.x){
+              I1.resize(0);
+              I1.resize(1, std::pair<Type, Type>(static_cast<Type>(p1.x), static_cast<Type>(p2.x)));
+              I3.resize(0);
+              I3.resize(1, std::pair<Type, Type>(static_cast<Type>(p2.x), static_cast<Type>(1)));  //not sure if it is taking value. Lets do I1 manually.
+              area = trig_integral_A3(m, n, s, a, c, pol2, {{p1.x, p2.x}}) -  trig_integral_A2(m, n, s, a, c, pol2, {{p1.x, p2.x}}) + trig_integral_A3(m, n, s, a, c, pol2, {{p1.x, static_cast<Type>(1)}});
             }
             else{
+              I1.resize(0);
+              I1.resize(1, std::pair<Type, Type>(static_cast<Type>(p2.x), static_cast<Type>(p1.x)));
+              I3.resize(0);
+              I3.resize(1, std::pair<Type, Type>(static_cast<Type>(0), static_cast<Type>(p2.x)));
+              area = trig_integral_A3(m, n, s, a, c, pol2, {{p2.x, p1.x}}) -  trig_integral_A2(m, n, s, a, c, pol2, {{p2.x, p1.x}}) + trig_integral_A3(m, n, s, a, c, pol2, {{ static_cast<Type>(0), p2.x}});
+
 
             }
 
