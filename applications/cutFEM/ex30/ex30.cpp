@@ -1497,10 +1497,10 @@ int main() {
 // 2E    -4.8x^{2}+4.6x+-1.1+y=0
 //
 // 8.750000000000002x^2+-8.000000000000002x+1.25 + y = 0
-
-   k = 8.75;
-   b = -8.0;
-   d = 1.25;
+// 1.11111x^2+ -2.55556x+ 0.844444+y =0
+   k = -3.52;
+   b = 3.64;
+   d = -0.94;
   a = 0;
   c = 1;
 
@@ -1549,20 +1549,20 @@ int main() {
     Trig_area1 = Trig_A1 + Trig_A2 + Trig_A3;
     cout << "Trig_A1 = " << Trig_A1 << "\n Trig_A2 = " << Trig_A2 << "\n Trig_A3 = " << Trig_A3 <<"\n trig area = " << Trig_area1 <<endl;
 
-    I1.resize(0);
-    I3.resize(0);
-    I1.resize(1, std::pair<Type, Type>(static_cast<Type>(0.25), static_cast<Type>(0.4583)));
-    I3.resize(1, std::pair<Type, Type>(static_cast<Type>(0.4583), static_cast<Type>(1)));
-
+//     I1.resize(0);
+//     I3.resize(0);
+//     I1.resize(1, std::pair<Type, Type>(static_cast<Type>(0.25), static_cast<Type>(0.4583)));
+//     I3.resize(1, std::pair<Type, Type>(static_cast<Type>(0.4583), static_cast<Type>(1)));
+/*
   for(unsigned i = 0; i < I1.size(); i++) {std::cout << "I1_1 = " << I1[i].first << "; I1_2 = " << I1[i].second << ";" << std::endl;}
-  for(unsigned i = 0; i < I3.size(); i++) {std::cout << "I3_1 = " << I3[i].first << "; I3_2 = " << I3[i].second << ";" << std::endl;}
+  for(unsigned i = 0; i < I3.size(); i++) {std::cout << "I3_1 = " << I3[i].first << "; I3_2 = " << I3[i].second << ";" << std::endl;}*/
   //When I do this I1 is resizing but it is not taking any value. Kept the original value. I don't know how my previous code worked.
 
 
-
+/*
   Type Trig_1A = trig_integral_A3(m, n, s, a, c, pol2, I1) -  trig_integral_A2(m, n, s, a, c, pol2, I1);
   Type Trig_1B = trig_integral_A3(m, n, s, a, c, pol2, I3) ;
-  cout<< " -----------------Check area -----"<< Trig_1A << " "<<Trig_1B<<  " " <<Trig_1A+Trig_1B << endl;
+  cout<< " -----------------Check area -----"<< Trig_1A << " "<<Trig_1B<<  " " <<Trig_1A+Trig_1B << endl;*/
 
 
     pol1[0] *= -1;
