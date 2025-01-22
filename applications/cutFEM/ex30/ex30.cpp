@@ -1495,9 +1495,12 @@ int main() {
 // 2B    2.37037x^2+ -3.80741x+ 0.803704+y =0
 // 2D    -3.52x^2+ 3.64x+ -0.94+y =0
 // 2E    -4.8x^{2}+4.6x+-1.1+y=0
-   k = -4.8;
-   b = 4.6;
-   d = -1.1;
+//
+// 8.750000000000002x^2+-8.000000000000002x+1.25 + y = 0
+
+   k = 8.75;
+   b = -8.0;
+   d = 1.25;
   a = 0;
   c = 1;
 
@@ -1624,6 +1627,8 @@ int main() {
       if((fabs(Trig_area1 + Trig_area2 - 1. / ((m + n + 2.) * (n + 1.))) < err)) {
       std::cout << "................................ Failed...................................... " << std::endl;
       std::cout << "\nm = " << m << "; n = " << n << "; s = " << s << "; k = " << -pol2[0] << "; b = " << -pol2[1] << "; d = " << -pol2[2] << "; a = " << -a << "; c = " << -c << ";" << std::endl;
+
+      std::cout << "\n" << -pol2[0] << "x^2+ " << -pol2[1] << "x+ " << -pol2[2] << "+" << -c << "y = 0 " << std::endl;
 //       for(unsigned i = 0; i < I1.size(); i++) {
 //         std::cout << "I1_1 = " << I1[i].first << "; I1_2 = " << I1[i].second << ";" << std::endl;
 //       }
@@ -1638,6 +1643,10 @@ int main() {
       std::cout << "Trig A2= " << Trig_A2 <<  std::endl;
       std::cout << "Trig A3= " << Trig_A3 <<  std::endl;
       std::cout << "\nm = " << m << "; n = " << n << "; s = " << s << "; k = " << pol2[0] << "; b = " << pol2[1] << "; d = " << pol2[2] << "; a = " << a << "; c = " << c << ";" << std::endl;
+
+      std::cout << "\n" << pol2[0] << "x^2+ " << pol2[1] << "x+ " << pol2[2] << "+" << c << "y = 0 " << std::endl;
+
+
       for(unsigned i = 0; i < nI1.size(); i++) {
         std::cout << "nI1_1 = " << nI1[i].first << "; nI1_2 = " << nI1[i].second << ";" << std::endl;
       }

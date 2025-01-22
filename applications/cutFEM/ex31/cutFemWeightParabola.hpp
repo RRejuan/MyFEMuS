@@ -289,15 +289,15 @@ void CutFemWeightParabola<TypeIO, TypeA>::operator()(const int &s, const TypeA &
     if(_geomElemType == LINE || _geomElemType == QUAD || _geomElemType == HEX) {          //Question? it looks like in quad we are shifting the basis from (-1 to 1) to (0 to 1) But in triangle the only thing we didnot do it.
       for(unsigned k = 0; k < _dim; k++)  x[k] = 0.5 * (1. + _xgp[k][ig]);
     }
-    else if(_geomElemType == TRI) {    // We change the basis here. For vertical parabola x*=1-x and y*=y . For Horizontal parabola x** = 1-y and y** = x ;
+    else if(_geomElemType == TRI) {    // We will change the basis here. For vertical parabola x*=1-x and y*=y . For Horizontal parabola x** = 1-y and y** = x ;
       bool vertical = true;
       bool xSpan = false;
       bool ySpan = false;
 
-      if((p1.x < p3.x && p3.x < p2.x) || ( p1.x > p3.x && p3.x > p2.x)) xSpan = true ;
+      if((p1.x < p3.x && p3.x < p2.x) || ( p1.x > p3.x && p3.x > p2.x)) xSpan = true ;     // TODO I am calculating this multiple times. I only need to do it once. may be calculate this out of the for loop.
       if((p1.y < p3.y && p3.y < p2.y) || ( p1.y > p3.y && p3.y > p2.y)) ySpan = true ;
 
-      cout << "xspan = " << xSpan << " yspan = "<< ySpan <<endl;
+//       cout << "xspan = " << xSpan << " yspan = "<< ySpan <<endl;
       if(xSpan) {
         if(ySpan) {
           if(fabs(p1.x - p2.x) >= fabs(p1.y - p2.y)) vertical = true;
@@ -314,7 +314,7 @@ void CutFemWeightParabola<TypeIO, TypeA>::operator()(const int &s, const TypeA &
 
         }
       }
-      if (vertical){
+      if (vertical){ //This is where we change the basis
         x[0] = (1. - _xgp[0][ig]);
         x[1] = _xgp[1][ig];
       }

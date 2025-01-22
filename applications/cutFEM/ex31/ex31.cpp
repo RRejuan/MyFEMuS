@@ -887,10 +887,7 @@ Type find_trig_area_2intersection_formula(const unsigned &m, const unsigned &n, 
               I3.resize(0);
               I3.resize(1, std::pair<Type, Type>(static_cast<Type>(0), static_cast<Type>(p2.x)));
               area = trig_integral_A3(m, n, s, a, c, pol2, {{p2.x, p1.x}}) -  trig_integral_A2(m, n, s, a, c, pol2, {{p2.x, p1.x}}) + trig_integral_A3(m, n, s, a, c, pol2, {{ static_cast<Type>(0), p2.x}});
-
-
             }
-
         }
         else {
             if (p1.x>p2.x){
@@ -927,6 +924,8 @@ Type find_trig_area_2intersection_formula(const unsigned &m, const unsigned &n, 
 //           I3.resize(1, std::pair<Type, Type>(static_cast<Type>(0), static_cast<Type>(p2.x)));
 //           area = trig_integral_A3(m, n, s, a, c, pol2, I1) -  trig_integral_A2(m, n, s, a, c, pol2, I1) + trig_integral_A3(m, n, s, a, c, pol2, I3);
 //         }
+
+
     }
 
      else {
@@ -1328,19 +1327,84 @@ public:
         }
     }
 
+//     OctreeNode* search(const Point3D& point) {
+//         if (isLeaf) {
+//             return this;
+//         }
+//
+//         for (auto& child : children) {
+//             if (child.contains(point)) {
+//                 return child.search(point);
+//             }
+//         }
+//
+//         return nullptr; // Should not reach here under normal circumstances
+//     }
+
+
+
     OctreeNode* search(const Point3D& point) {
+      // First check if point is even in this node
+      if (contains(point)) {
+        std::cout << "\nFound containing node at depth " << depth << ":\n";
+        std::cout << "Point: (" << point.x << ", " << point.y << ", " << point.z << ")\n";
+        std::cout << "Node corners:\n";
+        for (size_t i = 0; i < corners.size(); ++i) {
+            std::cout << "Corner " << i << ": ("
+                     << corners[i].x << ", "
+                     << corners[i].y << ", "
+                     << corners[i].z << ")\n";
+        }
+
+        // If this is a leaf node, we're done
         if (isLeaf) {
+            std::cout << "This is a leaf node - returning\n";
             return this;
         }
 
+        // If not a leaf, check children
+        std::cout << "Checking " << children.size() << " children\n";
         for (auto& child : children) {
-            if (child.contains(point)) {
-                return child.search(point);
+            OctreeNode* result = child.search(point);
+            if (result != nullptr) {
+                return result;
             }
         }
 
-        return nullptr; // Should not reach here under normal circumstances
+        // If no children contain the point, return this node
+        std::cout << "No children contain point - returning this node\n";
+        return this;
     }
+
+    // Point not in this node
+    return nullptr;
+    }
+
+
+//         OctreeNode* search(const Point3D& point) {
+//             // First check if point is even in this node
+//             if (!contains(point)) {
+//                 return nullptr;
+//             }
+//
+//             // If this is a leaf node and contains the point, return this node
+//             if (isLeaf) {
+//                 return this;
+//             }
+//
+//             // Check each child
+//             for (auto& child : children) {
+//                 OctreeNode* result = child.search(point);
+//                 if (result != nullptr) {
+//                     return result;
+//                 }
+//             }
+//
+//             // If no child contains the point (shouldn't happen with proper subdivision)
+//             // return this node as the best match
+//             return this;
+//         }
+
 
     void saveOctreeToCSV(const std::string& filename) const {
         std::ofstream ofs(filename, std::ios::binary);
@@ -1510,22 +1574,136 @@ private:
         return childCorners;
     }
 
-    bool contains(const Point3D& point) const {
-        // Check if the point is inside the bounding box defined by the corners
-        Point3D minBound = corners[0];
-        Point3D maxBound = corners[7];
-        for (const auto& corner : corners) {
-            minBound.x = std::min(minBound.x, corner.x);
-            minBound.y = std::min(minBound.y, corner.y);
-            minBound.z = std::min(minBound.z, corner.z);
-            maxBound.x = std::max(maxBound.x, corner.x);
-            maxBound.y = std::max(maxBound.y, corner.y);
-            maxBound.z = std::max(maxBound.z, corner.z);
-        }
-        return point.x >= minBound.x && point.x <= maxBound.x &&
-               point.y >= minBound.y && point.y <= maxBound.y &&
-               point.z >= minBound.z && point.z <= maxBound.z;
+
+
+    bool contains(const Point3D& point) const {// uses tetrahedra decomposition
+    const double EPSILON = 1e-10;
+
+    // Helper function to compute determinant of 3x3 matrix
+    auto det3x3 = [](double a00, double a01, double a02,
+                     double a10, double a11, double a12,
+                     double a20, double a21, double a22) -> double {
+        return a00 * (a11 * a22 - a12 * a21) -
+               a01 * (a10 * a22 - a12 * a20) +
+               a02 * (a10 * a21 - a11 * a20);
+    };
+
+    // Helper function to check if point is inside tetrahedron using barycentric coordinates
+    auto pointInTetrahedron = [EPSILON, &det3x3](const Point3D& p,
+                                                const Point3D& a,
+                                                const Point3D& b,
+                                                const Point3D& c,
+                                                const Point3D& d) -> bool {
+        double d0 = det3x3(a.x-d.x, b.x-d.x, c.x-d.x,
+                          a.y-d.y, b.y-d.y, c.y-d.y,
+                          a.z-d.z, b.z-d.z, c.z-d.z);
+
+        double d1 = det3x3(p.x-d.x, b.x-d.x, c.x-d.x,
+                          p.y-d.y, b.y-d.y, c.y-d.y,
+                          p.z-d.z, b.z-d.z, c.z-d.z);
+
+        double d2 = det3x3(a.x-d.x, p.x-d.x, c.x-d.x,
+                          a.y-d.y, p.y-d.y, c.y-d.y,
+                          a.z-d.z, p.z-d.z, c.z-d.z);
+
+        double d3 = det3x3(a.x-d.x, b.x-d.x, p.x-d.x,
+                          a.y-d.y, b.y-d.y, p.y-d.y,
+                          a.z-d.z, b.z-d.z, p.z-d.z);
+
+        if (std::abs(d0) < EPSILON) return false;
+
+        double b1 = d1 / d0;
+        double b2 = d2 / d0;
+        double b3 = d3 / d0;
+        double b4 = 1.0 - b1 - b2 - b3;
+
+        return b1 >= -EPSILON && b2 >= -EPSILON && b3 >= -EPSILON && b4 >= -EPSILON;
+    };
+
+    // Decompose hexahedron into five tetrahedra
+    return pointInTetrahedron(point, corners[0], corners[1], corners[2], corners[5]) ||
+           pointInTetrahedron(point, corners[0], corners[2], corners[5], corners[7]) ||
+           pointInTetrahedron(point, corners[2], corners[5], corners[7], corners[6]) ||
+           pointInTetrahedron(point, corners[0], corners[2], corners[3], corners[7]) ||
+           pointInTetrahedron(point, corners[0], corners[4], corners[5], corners[7]);
     }
+
+
+//     bool contains(const Point3D& point) const { //uses faces
+//         // Check if the point is inside the bounding box defined by the corners
+//         Point3D minBound = corners[0];
+//         Point3D maxBound = corners[7];
+//         for (const auto& corner : corners) {
+//             minBound.x = std::min(minBound.x, corner.x);
+//             minBound.y = std::min(minBound.y, corner.y);
+//             minBound.z = std::min(minBound.z, corner.z);
+//             maxBound.x = std::max(maxBound.x, corner.x);
+//             maxBound.y = std::max(maxBound.y, corner.y);
+//             maxBound.z = std::max(maxBound.z, corner.z);
+//         }
+//         return point.x >= minBound.x && point.x <= maxBound.x &&
+//                point.y >= minBound.y && point.y <= maxBound.y &&
+//                point.z >= minBound.z && point.z <= maxBound.z;
+//     }
+
+//     bool contains(const Point3D& point) const {
+//         We'll use the sign of triple products to determine if the point is on the
+//         correct side of each face. A point is inside if it's on the correct side
+//         of all faces.
+//
+//         const double EPSILON = 1e-10;  // Add small epsilon for numerical stability
+//
+//         Helper function to calculate triple product
+//         auto tripleProduct = [](const Point3D& a, const Point3D& b, const Point3D& c) -> double {
+//             return (a.x * (b.y * c.z - b.z * c.y) +
+//                     a.y * (b.z * c.x - b.x * c.z) +
+//                     a.z * (b.x * c.y - b.y * c.x));
+//         };
+//
+//         Helper function to create vector from two points
+//         auto makeVector = [](const Point3D& from, const Point3D& to) -> Point3D {
+//             return Point3D{to.x - from.x, to.y - from.y, to.z - from.z};
+//         };
+//
+//         Define faces based on your corner ordering
+//         Each face is defined by three corners in counter-clockwise order when viewed from outside
+//         const std::vector<std::vector<int>> faces = {
+//             {0, 1, 3},  // bottom face
+//             {0, 2, 1},  // bottom face (second triangle)
+//             {4, 7, 5},  // top face
+//             {4, 6, 7},  // top face (second triangle)
+//             {0, 4, 5},  // front face
+//             {0, 5, 1},  // front face (second triangle)
+//             {2, 6, 7},  // back face
+//             {2, 7, 3},  // back face (second triangle)
+//             {0, 3, 7},  // left face
+//             {0, 7, 4},  // left face (second triangle)
+//             {1, 5, 7},  // right face
+//             {1, 7, 3}   // right face (second triangle)
+//         };
+//
+//         for (const auto& face : faces) {
+//             Get three points defining the face
+//             const Point3D& v0 = corners[face[0]];
+//             const Point3D& v1 = corners[face[1]];
+//             const Point3D& v2 = corners[face[2]];
+//
+//             Create vectors
+//             Point3D edge1 = makeVector(v0, v1);
+//             Point3D edge2 = makeVector(v0, v2);
+//             Point3D toPoint = makeVector(v0, point);
+//
+//             Calculate triple product
+//             double tripleP = tripleProduct(edge1, edge2, toPoint);
+//
+//             If point is on wrong side of any face (with epsilon tolerance), it's outside
+//             if (tripleP < -EPSILON) {
+//                 return false;
+//             }
+//         }
+//
+//         return true;
+//     }
 };
 
 template <class Type>
@@ -1666,12 +1844,30 @@ int main() {
   clock_t t = clock();
 
   PointT <Type> p1, p2, p3;  // points in domain D
+
+  //table 0
 //   p1 = { 0.7, 0.3 };
 //   p2 = { 0.2, 0.8 };
 //   p3 = { (p1.x + p2.x) / 2.0, 0.2 };
-  p1 = { static_cast<Type>(0), static_cast<Type>(0.3) };
+  p1 = { static_cast<Type>(0.7), static_cast<Type>(0.3) };
   p2 = { static_cast<Type>(0.2), static_cast<Type>(0.8) };
   p3 = { static_cast<Type>((p1.x + p2.x) / 2.0), static_cast<Type>(0.2) };
+
+//
+//
+
+
+//table 1 vertical singleintersection
+//   p1 = { static_cast<Type>(0), static_cast<Type>(0.3) };
+//   p2 = { static_cast<Type>(0.2), static_cast<Type>(0.8) };
+//   p3 = { static_cast<Type>((p1.x + p2.x) / 2.0), static_cast<Type>(0.2) };
+
+
+// // table 2 vertical multipleintersection. It has 5 different cases.
+//     p1 = { static_cast<Type>(.6), static_cast<Type>(0.4) };
+//     p2 = { static_cast<Type>(0.2), static_cast<Type>(0.) };
+//     p3 = { (p1.x+p2.x)/2., static_cast<Type>(0.55) };
+
 
   PointT <Type> q1, q2, q3;   // points in domain D* or D** depending on vertical
 
@@ -1691,7 +1887,7 @@ int main() {
 //   p2 = { static_cast<Type>(p2.x), static_cast<Type>(p2.y) };
 //   p3 = { static_cast<Type>(p3.x), static_cast<Type>(p3.y) };
 
-  cout<<" table = "<< table_number <<"q = ("<<q1.x<<","<<q1.y<<"), ("<<q2.x<<","<<q2.y<<"), ("<<q3.x<<","<<q3.y<<") " << " searchp = (" << searchP.x << "," << searchP.y <<"," << searchP.z <<") " << "vertical =" << vertical << endl;
+  cout<<" table = "<< table_number <<". q = ("<<q1.x<<","<<q1.y<<"), ("<<q2.x<<","<<q2.y<<"), ("<<q3.x<<","<<q3.y<<") " << " searchp = (" << searchP.x << "," << searchP.y <<"," << searchP.z <<") " << "vertical =" << vertical << endl;
 
 
 
@@ -1747,7 +1943,9 @@ int main() {
     std::vector<OctreeNode<Type>>loadedRoots;
 
     generateAndLoadOctrees<Type>(maxDepth, degree, percent, Pweights, loadedRoots);
-//   printOctreeStructure(&loadedRoots[0]);
+//     printOctreeStructure(loadedRoots[2]);
+//
+//     return 1;
 
 //     Point3D originalPoint(0.7,0.2,0.2);
 //     Point3D searchP(1. - originalPoint.x , 1. - originalPoint.y, originalPoint.z );
@@ -1826,6 +2024,8 @@ int main() {
       std::cout << "Ix2y2 = " << Ix2y2 << std::endl;
 
     }
+
+    std::cout<<" If we use direct formula it will calculate integral of x^m y^n in D* . But we want integral of x^m y^n in D which is equivalent to integral of (1-x)^m y^n in D* . Quadratre rule give us correct result because of the change of basis in polybasisfunction.\n";
 
     Type direct_area_00 = find_trig_area_2intersection_formula<Type>(0, 0, 0, 0, 1, table_number,  q1,  q2, q3);
     Type direct_area_10 = find_trig_area_2intersection_formula<Type>(1, 0, 0, 0, 1, table_number,  q1,  q2, q3);
