@@ -166,7 +166,7 @@ Parabola <Type>  get_parabola_equation(const PointT <Type> p1, const PointT <Typ
     b = -(y1 * (x3 * x3 - x2 * x2) + y2 * (x1 * x1 - x3 * x3) + y3 * ((x2 * x2 - x1 * x1))) / det;
     d = -(y1 * x2 * x3 * (x2 - x3) + y2 * x3 * x1 * (x3 - x1) + y3 * x1 * x2 * (x1 - x2)) / det;
   }
-  else {
+  else {  //this should never work since det 0 means x1=x2 or x3
     Type slope = (y1 - y2) / (x1 - x2) ;
     k = 0;
     b = -slope;
@@ -179,9 +179,9 @@ Parabola <Type>  get_parabola_equation(const PointT <Type> p1, const PointT <Typ
 //        d = p1.x ;
 //     }
 
-  if(fabs(k) < 1.e-14) k = 0 ;
-  if(fabs(b) < 1.e-14) b = 0 ;
-  if(fabs(d) < 1.e-14) d = 0 ;
+  if(fabs(k) < 0.0000000000000001) k = 0 ;
+  if(fabs(b) < 0.0000000000000001) b = 0 ;
+  if(fabs(d) < 0.0000000000000001) d = 0 ;
 
   return {k, b, d};
 }
@@ -564,6 +564,23 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
   std::vector <Type> interp_point;
   Parabola <Type> parabola;
   Type ankor(0) ;
+
+  if( fabs(p1.x - p2.x) < 0.0000000000001 ){
+      if (table == 2){  //this is old table takes care of both actual table 2 and three.
+        area = (1. - pow(   (1. - (1. - p1.x))   ,(2. + m + n)     )     ) / ( (1. + n)*(2. + m + n));
+//         area =100;
+//         cout<< "."<<endl;
+        return area;
+      }
+      if (table == 1){
+       area = 0;
+       return area;
+      }
+
+  }
+
+
+
   parabola = get_parabola_equation(p1, p2, p3);
 
   Type k = parabola.k;
@@ -865,256 +882,6 @@ struct Point3D {
   Point3D(double* x, double* y, double* z) : x(*x), y(*y), z(*z) {}
 };
 
-template <class Type>
-Type trilinier_interpolation(std::vector< std::vector< Type >> & interp_table, const std::vector< Type > &interp_point) {
-
-  Type x = interp_point[0];
-  Type y = interp_point[1];
-  Type z = interp_point[2];
-
-  Type c_000 = interp_table[0][3];
-  Type c_001 = interp_table[1][3];
-  Type c_010 = interp_table[2][3];
-  Type c_011 = interp_table[3][3];
-  Type c_100 = interp_table[4][3];
-  Type c_101 = interp_table[5][3];
-  Type c_110 = interp_table[6][3];
-  Type c_111 = interp_table[7][3];
-
-  Type x0 = interp_table[0][0];
-  Type x1 = interp_table[7][0];
-  Type y0 = interp_table[0][1];
-  Type y1 = interp_table[7][1];
-  Type z0 = interp_table[0][2];
-  Type z1 = interp_table[7][2];
-
-  Type x_d = (x - x0) / (x1 - x0);
-  Type y_d = (y - y0) / (y1 - y0);
-  Type z_d = (z - z0) / (z1 - z0);
-
-  Type c_00 = c_000 * (1 - x_d) + c_100 * x_d ;
-  Type c_01 = c_001 * (1 - x_d) + c_101 * x_d ;
-  Type c_10 = c_010 * (1 - x_d) + c_110 * x_d ;
-  Type c_11 = c_011 * (1 - x_d) + c_111 * x_d ;
-
-  Type c_0 = c_00 * (1 - y_d) + c_10 * y_d ;
-  Type c_1 = c_01 * (1 - y_d) + c_11 * y_d ;
-
-  Type cc = c_0 * (1 - z_d) + c_1 * z_d ;
-
-  return cc;
-}
-
-template <class Type>
-void trilinier_interpolation_vector(const std::vector< std::vector< Type >> & interp_table, const std::vector< std::vector< Type >> & interp_table_values, const std::vector< Type > &interp_point, std::vector< Type > &interp_point_values) {
-
-  interp_point_values.resize(interp_table_values[0].size());
-  Type x = interp_point[0];
-  Type y = interp_point[1];
-  Type z = interp_point[2];
-
-  Type x0 = interp_table[0][0];
-  Type x1 = interp_table[7][0];
-  Type y0 = interp_table[0][1];
-  Type y1 = interp_table[7][1];
-  Type z0 = interp_table[0][2];
-  Type z1 = interp_table[7][2];
-
-  Type x_d = (x - x0) / (x1 - x0);
-  Type y_d = (y - y0) / (y1 - y0);
-  Type z_d = (z - z0) / (z1 - z0);
-
-  for(unsigned i = 0; i < interp_table_values[0].size(); i++) {
-    Type c_000 = interp_table_values[0][i];
-    Type c_001 = interp_table_values[1][i];
-    Type c_010 = interp_table_values[2][i];
-    Type c_011 = interp_table_values[3][i];
-    Type c_100 = interp_table_values[4][i];
-    Type c_101 = interp_table_values[5][i];
-    Type c_110 = interp_table_values[6][i];
-    Type c_111 = interp_table_values[7][i];
-
-    Type c_00 = c_000 * (1 - x_d) + c_100 * x_d ;
-    Type c_01 = c_001 * (1 - x_d) + c_101 * x_d ;
-    Type c_10 = c_010 * (1 - x_d) + c_110 * x_d ;
-    Type c_11 = c_011 * (1 - x_d) + c_111 * x_d ;
-
-    Type c_0 = c_00 * (1 - y_d) + c_10 * y_d ;
-    Type c_1 = c_01 * (1 - y_d) + c_11 * y_d ;
-
-    interp_point_values[i] = c_0 * (1 - z_d) + c_1 * z_d ;
-  }
-}
-
-template <class Type>
-void trilinier_interpolation_vector_fixed(const std::vector<std::vector<Type>> & interp_table,
-                                          const std::vector<std::vector<Type>> & interp_table_values,
-                                          const std::vector<Type> &interp_point,
-                                          std::vector<Type> &interp_point_values) {
-
-  interp_point_values.resize(interp_table_values[0].size());
-
-  // Find the minimum and maximum coordinates of the cube
-//     Type x_min = interp_table[0][0];
-//     Type x_max = interp_table[0][0];
-//     Type y_min = interp_table[0][1];
-//     Type y_max = interp_table[0][1];
-//     Type z_min = interp_table[0][2];
-//     Type z_max = interp_table[0][2];
-//
-//     for (size_t i = 1; i < interp_table.size(); ++i) {
-//         x_min = std::min(x_min, interp_table[i][0]);
-//         x_max = std::max(x_max, interp_table[i][0]);
-//         y_min = std::min(y_min, interp_table[i][1]);
-//         y_max = std::max(y_max, interp_table[i][1]);
-//         z_min = std::min(z_min, interp_table[i][2]);
-//         z_max = std::max(z_max, interp_table[i][2]);
-//     }
-
-  Type x_min = interp_table[0][0];
-  Type x_max = interp_table[1][0];
-  Type y_min = interp_table[0][1];
-  Type y_max = interp_table[2][1];
-  Type z_min = interp_table[0][2];
-  Type z_max = interp_table[4][2];
-
-
-  std::cout << "Cube bounds: x[" << x_min << ", " << x_max << "] y[" << y_min << ", " << y_max
-            << "] z[" << z_min << ", " << z_max << "]" << std::endl;
-
-
-
-
-
-  // Check if the dimensions are valid (non-zero)
-  Type x_dim = x_max - x_min;
-  Type y_dim = y_max - y_min;
-  Type z_dim = z_max - z_min;
-
-  if(x_dim < std::numeric_limits<Type>::epsilon() ||
-      y_dim < std::numeric_limits<Type>::epsilon() ||
-      z_dim < std::numeric_limits<Type>::epsilon()) {
-    std::cout << "WARNING: Cube has zero or near-zero dimension!" << std::endl;
-    // Use small epsilon values to avoid division by zero
-    x_dim = (x_dim < std::numeric_limits<Type>::epsilon()) ?
-            std::numeric_limits<Type>::epsilon() * 10 : x_dim;
-    y_dim = (y_dim < std::numeric_limits<Type>::epsilon()) ?
-            std::numeric_limits<Type>::epsilon() * 10 : y_dim;
-    z_dim = (z_dim < std::numeric_limits<Type>::epsilon()) ?
-            std::numeric_limits<Type>::epsilon() * 10 : z_dim;
-  }
-
-  // Calculate normalized coordinates of the query point
-  Type x_d = (interp_point[0] - x_min) / x_dim;
-  Type y_d = (interp_point[1] - y_min) / y_dim;
-  Type z_d = (interp_point[2] - z_min) / z_dim;
-
-  // Optional: Clamp coordinates to [0,1] if slightly outside the bounds
-  x_d = std::max(static_cast<Type>(0), std::min(static_cast<Type>(1), x_d));
-  y_d = std::max(static_cast<Type>(0), std::min(static_cast<Type>(1), y_d));
-  z_d = std::max(static_cast<Type>(0), std::min(static_cast<Type>(1), z_d));
-
-  std::cout << "Normalized coordinates: (" << x_d << ", " << y_d << ", " << z_d << ")" << std::endl;
-
-  // Map vertices to their correct positions in the unit cube
-  // We need to identify which vertex corresponds to which corner
-
-  // Define corners of the unit cube
-  std::vector<std::vector<int>> corners = {
-    {0, 0, 0}, // lower-left-front  (000)
-    {1, 0, 0}, // lower-right-front (100)
-    {0, 1, 0}, // lower-left-back   (010)
-    {1, 1, 0}, // lower-right-back  (110)
-    {0, 0, 1}, // upper-left-front  (001)
-    {1, 0, 1}, // upper-right-front (101)
-    {0, 1, 1}, // upper-left-back   (011)
-    {1, 1, 1}  // upper-right-back  (111)
-  };
-
-  // Map vertices to corners
-  std::vector<int> vertex_map(8, -1);
-  for(size_t i = 0; i < interp_table.size(); ++i) {
-    // Determine which corner this vertex is closest to
-    int closest_corner = 0;
-    Type min_distance = std::numeric_limits<Type>::max();
-
-    for(int c = 0; c < 8; ++c) {
-      // Calculate the normalized position of this vertex
-      Type nx = (interp_table[i][0] - x_min) / x_dim;
-      Type ny = (interp_table[i][1] - y_min) / y_dim;
-      Type nz = (interp_table[i][2] - z_min) / z_dim;
-
-      // Calculate distance to this corner
-      Type dx = nx - corners[c][0];
-      Type dy = ny - corners[c][1];
-      Type dz = nz - corners[c][2];
-      Type distance = dx * dx + dy * dy + dz * dz;
-
-      if(distance < min_distance) {
-        min_distance = distance;
-        closest_corner = c;
-      }
-    }
-
-    // Record this vertex as being closest to this corner
-    vertex_map[closest_corner] = i;
-  }
-
-  // Check that all corners have a vertex assigned
-  bool all_corners_mapped = true;
-  for(int i = 0; i < 8; ++i) {
-    if(vertex_map[i] == -1) {
-      all_corners_mapped = false;
-      std::cout << "WARNING: Corner " << i << " doesn't have a vertex assigned!" << std::endl;
-
-      // As a fallback, find the first unused vertex
-      for(size_t j = 0; j < interp_table.size(); ++j) {
-        bool is_used = false;
-        for(int k = 0; k < 8; ++k) {
-          if(vertex_map[k] == static_cast<int>(j)) {
-            is_used = true;
-            break;
-          }
-        }
-
-        if(!is_used) {
-          vertex_map[i] = j;
-          break;
-        }
-      }
-    }
-  }
-
-  std::cout << "Vertex mapping: ";
-  for(int i = 0; i < 8; ++i) {
-    std::cout << vertex_map[i] << " ";
-  }
-  std::cout << std::endl;
-
-  // Now perform the trilinear interpolation using the mapped vertices
-  for(unsigned i = 0; i < interp_table_values[0].size(); i++) {
-    // Get the values at the 8 corners of the cube using the vertex mapping
-    Type c_000 = interp_table_values[vertex_map[0]][i]; // (0,0,0)
-    Type c_100 = interp_table_values[vertex_map[1]][i]; // (1,0,0)
-    Type c_010 = interp_table_values[vertex_map[2]][i]; // (0,1,0)
-    Type c_110 = interp_table_values[vertex_map[3]][i]; // (1,1,0)
-    Type c_001 = interp_table_values[vertex_map[4]][i]; // (0,0,1)
-    Type c_101 = interp_table_values[vertex_map[5]][i]; // (1,0,1)
-    Type c_011 = interp_table_values[vertex_map[6]][i]; // (0,1,1)
-    Type c_111 = interp_table_values[vertex_map[7]][i]; // (1,1,1)
-
-    // Perform trilinear interpolation
-    Type c_00 = c_000 * (1 - x_d) + c_100 * x_d;
-    Type c_01 = c_001 * (1 - x_d) + c_101 * x_d;
-    Type c_10 = c_010 * (1 - x_d) + c_110 * x_d;
-    Type c_11 = c_011 * (1 - x_d) + c_111 * x_d;
-
-    Type c_0 = c_00 * (1 - y_d) + c_10 * y_d;
-    Type c_1 = c_01 * (1 - y_d) + c_11 * y_d;
-
-    interp_point_values[i] = c_0 * (1 - z_d) + c_1 * z_d;
-  }
-}
 
 template <class Type>
 Type trilinier_interpolation_FEM_orientation(const int table, std::vector< std::vector< Type >> & interp_table, const std::vector< Type > &interp_point) {
@@ -1382,7 +1149,6 @@ void trilinear_interpolation_vector_deformed(
 }
 
 
-
 template <class Type>
 void trilinear_interpolation_vector_remap_to_unitcube(
   const int table,
@@ -1525,7 +1291,7 @@ Type trilinear_interpolation_deformed(
 }
 
 template <class Type>   //TODO change this based on 6 table
-void get_p1_p2_p3(const int &table, const std::vector<double> &corner, PointT <Type> &p1, PointT <Type> &p2, PointT <Type> &p3) {
+void get_p1_p2_p3_old(const int &table, const std::vector<double> &corner, PointT <Type> &p1, PointT <Type> &p2, PointT <Type> &p3) {
   double epsilon = 0.000000000000001;
   Type i1_pm_eps(-1), i2_pm_eps(-1), i3_pm_eps(-1);
 
@@ -1611,6 +1377,108 @@ void get_p1_p2_p3(const int &table, const std::vector<double> &corner, PointT <T
 }
 
 template <class Type>
+void get_p1_p2_p3(const int &table, const std::vector<double> &corner, PointT <Type> &p1, PointT <Type> &p2, PointT <Type> &p3) {
+  double epsilon = 1.0e-15;
+  Type i1_pm_eps(-1), i2_pm_eps(-1), i3_pm_eps(-1);
+
+  // std::cout << "Corner " << i << ": (" << corner[0] << ", " << corner[1] << ", " << corner[2] << ") - Print Something\n";
+
+  switch(table) {
+  case 0:
+    i1_pm_eps = static_cast<Type>(corner[0]);
+    i2_pm_eps = static_cast<Type>(corner[1]);
+    i3_pm_eps = static_cast<Type>(corner[2]);
+
+//     if(corner[1] == 0){
+//       i2_pm_eps = static_cast<Type>(corner[1] + epsilon);
+//       i3_pm_eps = static_cast<Type>(corner[2] + epsilon);
+//     }
+
+    p1 = {static_cast<Type>(0), i1_pm_eps};
+    p2 = {i2_pm_eps, static_cast<Type>(1) - i2_pm_eps};
+    p3 = {(p1.x + p2.x) * 0.5, i3_pm_eps};
+    break;
+
+  case 1:
+    i1_pm_eps = static_cast<Type>(corner[0]);
+    i2_pm_eps = static_cast<Type>(corner[1]);
+    i3_pm_eps = static_cast<Type>(corner[2]);
+
+    if(corner[1] == 0){
+      i2_pm_eps = static_cast<Type>(corner[1] + epsilon);
+      i3_pm_eps = static_cast<Type>(corner[2] + epsilon);
+    }
+
+    p1 = {static_cast<Type>(0), i1_pm_eps};
+    p2 = {i2_pm_eps, static_cast<Type>(0)};
+    p3 = {(p1.x + p2.x) * 0.5, i3_pm_eps};
+    break;
+
+  case 2:
+    //Do we really need epsilon on this table?
+    i1_pm_eps = static_cast<Type>(corner[0]);
+    i2_pm_eps = static_cast<Type>(corner[1]);
+    i3_pm_eps = static_cast<Type>(corner[2]);
+//     if(corner[0] == corner[1]){
+//       i2_pm_eps = static_cast<Type>(corner[1] - epsilon);
+//       i3_pm_eps = static_cast<Type>(corner[2] + epsilon);
+//     }
+
+    p1 = {i1_pm_eps, static_cast<Type>(1) - i1_pm_eps};
+    p2 = {i2_pm_eps, static_cast<Type>(0)};
+    p3 = {(p1.x + p2.x) * 0.5, i3_pm_eps};
+    break;
+
+  case 3:
+    i1_pm_eps = static_cast<Type>(corner[0]);
+    i2_pm_eps = static_cast<Type>(corner[1]);
+    i3_pm_eps = static_cast<Type>(corner[2]);
+/*
+    if(corner[0] == corner[1]){
+      i2_pm_eps = static_cast<Type>(corner[1] - epsilon);
+      i3_pm_eps = static_cast<Type>(corner[2] + epsilon);
+    }*/
+
+    p1 = {static_cast<Type>(1) - i1_pm_eps, i1_pm_eps};
+    p2 = {static_cast<Type>(0), i2_pm_eps};
+    p3 = {i3_pm_eps, (p1.y + p2.y) * 0.5};
+    break;
+
+  case 4:
+    i1_pm_eps = static_cast<Type>(corner[0]);
+    i2_pm_eps = static_cast<Type>(corner[1]);
+    i3_pm_eps = static_cast<Type>(corner[2]);
+
+    if(corner[1] == 0){
+      i2_pm_eps = static_cast<Type>(corner[1] + epsilon);
+      i3_pm_eps = static_cast<Type>(corner[2] + epsilon);
+    }
+
+    p1 = {i1_pm_eps, static_cast<Type>(0)};
+    p2 = {static_cast<Type>(0), i2_pm_eps};
+    p3 = {i3_pm_eps, (p1.y + p2.y) * 0.5};
+    break;
+
+  case 5:
+    i1_pm_eps = static_cast<Type>(corner[0]);
+    i2_pm_eps = static_cast<Type>(corner[1]);
+    i3_pm_eps = static_cast<Type>(corner[2]);
+
+//     if(corner[1] == 0){
+//       i2_pm_eps = static_cast<Type>(corner[1] + epsilon);
+//       i3_pm_eps = static_cast<Type>(corner[2] + epsilon);
+//     }
+
+    p1 = {i1_pm_eps, static_cast<Type>(0)};
+    p2 = {static_cast<Type>(1) - i2_pm_eps, i2_pm_eps};
+    p3 = {i3_pm_eps, (p1.y + p2.y) * 0.5};
+    break;
+
+  }
+
+}
+
+template <class Type>
 void find_actual_table_trig(const PointT <Type> &p1, const PointT <Type> &p2,  PointT <Type> &p3, int &actual_table, int &old_table, Point3D &searchP, PointT <Type> &q1, PointT <Type> &q2, PointT <Type> &q3, bool &vertical) {    //TODO re arrange q1 and q2 as this will create a problem in two intersection formula.
   double epsilon = 0.0000000000001;
   vertical = true;
@@ -1647,7 +1515,7 @@ void find_actual_table_trig(const PointT <Type> &p1, const PointT <Type> &p2,  P
     q2 = {(1. - p2.x), p2.y};
     q3 = {(1. - p3.x), p3.y};
 
-    cout << "q1 = (" << q1.x << "," << q1.y << ")" << endl;
+    cout << "vertical q1 = (" << q1.x << "," << q1.y << ")" << endl;
     cout << "q2 = (" << q2.x << "," << q2.y << ")" << endl;
     cout << "q3 = (" << q3.x << "," << q3.y << ")" << endl;
 
@@ -1721,7 +1589,7 @@ void find_actual_table_trig(const PointT <Type> &p1, const PointT <Type> &p2,  P
     q2 = {(1. - p2.y), p2.x};
     q3 = {(1. - p3.y), p3.x};
 
-    cout << "q1 = (" << q1.x << "," << q1.y << ")" << endl;
+    cout << "Hori q1 = (" << q1.x << "," << q1.y << ")" << endl;
     cout << "q2 = (" << q2.x << "," << q2.y << ")" << endl;
     cout << "q3 = (" << q3.x << "," << q3.y << ")" << endl;
     if(fabs(q3.x - (q1.x + q2.x) / 2.) > epsilon) {
@@ -1786,6 +1654,71 @@ void find_actual_table_trig(const PointT <Type> &p1, const PointT <Type> &p2,  P
       }
     }
   }
+
+  // Trying to see what happens if we do not use table 2 and 3.
+  //
+//   if(actual_table == 2){
+//     if(fabs(p1.x + p1.y - 1.) < epsilon) {
+//       if(fabs(p2.y - 0.) < epsilon) {
+//         vertical = false;
+//         actual_table = 5;
+//         old_table = 1;
+//         searchP = {static_cast<double>(p2.x), static_cast<double>(p1.y), static_cast<double>(p3.x)};
+//         q1 = {(1. - p2.y), p2.x};
+//         q2 = {(1. - p1.y), p1.x};
+//         q3 = {(1. - p3.y), p3.x};
+//       }
+//     }
+//     else if(fabs(p2.x + p2.y - 1.) < epsilon) {
+//       if(fabs(p1.y - 0.) < epsilon) {
+//         vertical = false;
+//         actual_table = 5;
+//         old_table = 1;
+//         searchP = {static_cast<double>(p1.x), static_cast<double>(p2.y), static_cast<double>(p3.x)};
+//         //swap
+//
+//         q1 = {(1. - p1.y), p1.x};
+//         q2 = {(1. - p2.y), p2.x};
+//         q3 = {(1. - p3.y), p3.x};
+//
+//       }
+//     }
+//
+//     cout << "change 2 to 5  q1 = (" << q1.x << "," << q1.y << ")" << endl;
+//     cout << "q2 = (" << q2.x << "," << q2.y << ")" << endl;
+//     cout << "q3 = (" << q3.x << "," << q3.y << ")" << endl;
+//   }
+//   else if (actual_table == 3){ //forcing it to be a vertical table 0.
+//       if(fabs(p1.x - 0.) < epsilon) {
+//         if(fabs(p2.x + p2.y - 1.) < epsilon) {
+//           vertical = true;
+//           actual_table = 0;
+//           old_table = 1;
+//           searchP = {static_cast<double>(p1.y), static_cast<double>(p2.x), static_cast<double>(p3.y)};
+//           //swap
+//           q1 = {(1. - p1.x), p1.y};
+//           q2 = {(1. - p2.x), p2.y};
+//           q3 = {(1. - p3.x), p3.y};
+//         }
+//       }
+//       else if(fabs(p2.x - 0.) < epsilon) {
+//         if(fabs(p1.x + p1.y - 1.) < epsilon) {
+//           vertical = true;
+//           actual_table = 0;
+//           old_table = 1;
+//           searchP = {static_cast<double>(p2.y), static_cast<double>(p1.x), static_cast<double>(p3.y)};
+//           q1 = {(1. - p2.x), p2.y};
+//           q2 = {(1. - p1.x), p1.y};
+//           q3 = {(1. - p3.x), p3.y};
+//
+//         }
+//       }
+//
+//     cout << "change 3 to 0  q1 = (" << q1.x << "," << q1.y << ")" << endl;
+//     cout << "q2 = (" << q2.x << "," << q2.y << ")" << endl;
+//     cout << "q3 = (" << q3.x << "," << q3.y << ")" << endl;
+//   }
+
 }
 
 double GaussIntegral(const int &xExp, const int &yExp, const double* xg, const double* yg, const std::vector<double> &interp_point_weights, const double* gaussWeight) {
@@ -2197,79 +2130,6 @@ class OctreeNode {
       // Calculate relative errors with new denominators
       relative_error = std::fabs(max_area - min_area) / denominator1;
       relative_error_opposite = std::fabs(max_area - min_area) / denominator2;
-
-
-
-      // Calculate midpoints for subdivision
-//         std::vector<Point3D> midpoints(19);
-//         calculateMidpoints(midpoints);
-//
-//         std::vector<double> relativeErrors;
-//         std::vector<double> relativeErrorsOpposite;
-//         for (const auto& midpoint : midpoints) {
-//             std::vector<double> interp_point = {midpoint.x, midpoint.y, midpoint.z};
-//             Type f_area(0);
-//             Type c = 1;
-//             PointT<Type> p1, p2, p3;
-//             get_p1_p2_p3(table, interp_point, p1, p2, p3);
-//             std::vector<std::vector<double>> interpolation_vector(8);
-//             int count = 0;
-//             for (unsigned qq = 0; qq <= 0; qq++) {   //just based on area
-//                 for (unsigned jj = 0; jj <= qq; jj++) {
-//                     unsigned ii = qq - jj;
-//                     for (size_t ic = 0; ic < corners.size(); ++ic) {
-//                         interpolation_vector[ic] = {corners[ic].x, corners[ic].y, corners[ic].z, cornerAreas[ic][count]};
-//                     }
-//
-//                     // Use the new deformed interpolation function
-//                     double interp_area = trilinier_interpolation_FEM_orientation<double>(table, interpolation_vector, interp_point);
-//
-//                     f_area = find_trig_area_2intersection_formula_first(jj, ii, s, a, c, table, p1, p2, p3);
-//                     double formula_area = static_cast<double>(f_area);
-//
-//
-//
-//                     double r_error = fabs(formula_area - interp_area) / fabs(formula_area);
-// //                     if(isnan(r_error)) r_error = 1.0 ;
-//                     double r_error_opposite = fabs(formula_area - interp_area) / (0.5 - fabs(formula_area));
-// //                     if(isnan(r_error_opposite)) r_error_opposite = 1.0 ;
-//                     relativeErrors.push_back(r_error);
-//                     relativeErrorsOpposite.push_back(r_error_opposite);
-//
-//                     // Handle potential division by zero to avoid NaN values
-// //                     double r_error = 0.0;
-// //                     if (fabs(formula_area) > 0.000000000001) {  // Check if denominator is not too close to zero
-// //                         r_error = fabs(formula_area - interp_area) / fabs(formula_area);
-// //                     }
-// //                     else r_error = 1.0 ;
-//                     // For opposite error calculation
-// //                     double denom_opposite = 1./ ((ii + jj + 2.) * (jj + 1.)) - formula_area;
-// //                     double r_error_opposite = 0.0;
-// //                     if (fabs(denom_opposite) > 0.000000000001) {  // Check if denominator is not too close to zero
-// //                         r_error_opposite = fabs(formula_area - interp_area) / fabs(denom_opposite);
-// //                     }
-// //                     else r_error_opposite = 1.0 ;
-// /*
-//                     if(!isnan(r_error)){
-//                       relativeErrors.push_back(r_error);
-//                     }
-//                     if(!isnan(r_error_opposite)){
-//                       relativeErrorsOpposite.push_back(r_error_opposite);
-//                     }*/
-//                 }
-//             }
-//         }
-
-//           relative_error = *std::max_element(relativeErrors.begin(), relativeErrors.end());
-//           relative_error_opposite = *std::max_element(relativeErrorsOpposite.begin(), relativeErrorsOpposite.end());
-
-      // Decide whether to subdivide based on depth, error, or target corner
-      /*        bool shouldSubdivide = (currentDepth < 3) ||
-                                    (box_relative_error > 0.1) ||
-                                    (box_relative_error_opposite > 0.1) ||
-                                    (relative_error > maxRelativeError) ||
-                                    (relative_error_opposite > maxRelativeError) ||
-                                    shouldForceSubdivide;*/  // Force target corner to subdivide to depth 10
 
       bool shouldSubdivide = (currentDepth < 3) ||
                              (relative_error > maxRelativeError) ||
@@ -3177,8 +3037,6 @@ int main (int argc, char** args) {
 //  double radius = 0.19;
 //  Mesh parameters
 
-
-
   int triangleIndex = 0;
   int fourintersection = 0;
 
@@ -3214,9 +3072,9 @@ int main (int argc, char** args) {
 //     return 1;
   // Loop through the mesh
 
-  int nd = 4;  // Number of divisions per side
+  int nd = 8;  // Number of divisions per side
 
-  unsigned nlevel = 7;
+  unsigned nlevel = 6;
   std::vector<double> ndLevel(nlevel);
   std::vector<double> absError(nlevel);
 
@@ -3229,7 +3087,7 @@ int main (int argc, char** args) {
         for(int t = 0; t < 2; t++) {
           triangleIndex++;
 
-//           cout << " ======= Triangle ====== " << triangleIndex << endl;
+          cout << " ======= Triangle ====== " << triangleIndex << endl;
           double x1, y1, x2, y2, x3, y3, area ;
           bool normal = true;
 
@@ -3507,7 +3365,7 @@ int main (int argc, char** args) {
                 cout << " Physical formula  area = " << (ref_formula_area)*h*h << endl;
                 cout << " difference between formula and quadrature = " << reldif << endl;
                 cout << " Relative difference  " << reldif / static_cast<double>((ref_formula_area)) << endl;
-                if(reldif / static_cast<double>((ref_formula_area)) > percent / 2.) {
+                if(reldif / static_cast<double>((ref_formula_area)) > 0.01) {
                   std::vector<double> badcaseEntry = {
                     static_cast<double>(triangleIndex),
                     static_cast<double>(actual_table),
@@ -3617,140 +3475,143 @@ int main (int argc, char** args) {
   for(unsigned level = 0; level < nlevel; level++) {
     std::cout << level << " " << ndLevel[level] << " " << absError[level] << " " << std::endl;
   }
+  for(unsigned level = 0; level < nlevel-1; level++) {
+    std::cout << log2(absError[level]/absError[level+1]) << " " ;
+  }
 
   return 0;
 }
 
 
 
-double GetBiquadraticInterpolation(const std::vector<double> & W, const std::vector<double> & s) {
-
-
-  const double &s1 = s[0];
-  const double &s2 = s[1];
-  const double &s3 = s[2];
-
-  double phi[3];
-  phi[0] = (1. - s1) * (1. - 2. * s1);
-  phi[1] = 4. * s1 * (1. -  s1);
-  phi[2] = s1 * (2. * s1 - 1.);
-
-  double b[3][3];
-  b[0][0] = W[0] * phi[0] + W[8] * phi[1] + W[1] * phi[2];
-  b[0][1] = W[11] * phi[0] + W[20] * phi[1] + W[9] * phi[2];
-  b[0][2] = W[3] * phi[0] + W[10] * phi[1] + W[2] * phi[2];
-
-  b[1][0] = W[16] * phi[0] + W[22] * phi[1] + W[17] * phi[2];
-  b[1][1] = W[25] * phi[0] + W[26] * phi[1] + W[23] * phi[2];
-  b[1][2] = W[19] * phi[0] + W[24] * phi[1] + W[18] * phi[2];
-
-  b[1][0] = W[4] * phi[0] + W[12] * phi[1] + W[5] * phi[2];
-  b[1][1] = W[15] * phi[0] + W[21] * phi[1] + W[13] * phi[2];
-  b[1][2] = W[7] * phi[0] + W[14] * phi[1] + W[6] * phi[2];
-
-  phi[0] = (1. - s2) * (1. - 2. * s2);
-  phi[1] = 4. * s2 * (1. -  s2);
-  phi[2] = s2 * (2. * s2 - 1.);
-  double a[3] = {0., 0., 0.};
-  for(unsigned i = 0; i < 3; i++) {
-    for(unsigned j = 0; j < 3; j++) {
-      a[i] += b[i][j] * phi[j];
-    }
-  }
-
-  phi[0] = (1. - s3) * (1. - 2. * s3);
-  phi[1] = 4. * s3 * (1. -  s3);
-  phi[2] = s3 * (2. * s3 - 1.);
-  double weight = a[0] * phi[0] + a[1] * phi[1] +  a[2] * phi[2];
-
-  return weight;
-
-}
-
-template <class Type>
-Type GetTriquadraticInterpolation(const int table, std::vector< std::vector< Type >> & interp_table, std::vector< std::vector< Type >> & midpoint_table, const std::vector< Type > &interp_point) {
-
-  Type x = interp_point[0];
-  Type y = interp_point[1];
-
-  Type denominator(0), denominatorz0(0), denominatorz1(0);
-
-  if(table < 2 || table > 3) denominator = y - 2;
-  else denominator = x + y - 2;
-
-  Type z = -(2 * interp_point[2]) / denominator;
-
-
-  Type c_000 = interp_table[0][3];
-  Type c_100 = interp_table[1][3];
-  Type c_110 = interp_table[2][3];
-  Type c_010 = interp_table[3][3];
-  Type c_001 = interp_table[4][3];
-  Type c_101 = interp_table[5][3];
-  Type c_111 = interp_table[6][3];
-  Type c_011 = interp_table[7][3];
-
-  Type x0 = interp_table[0][0];
-  Type x1 = interp_table[1][0];
-  Type y0 = interp_table[0][1];
-  Type y1 = interp_table[7][1];
-  if(table < 2 || table > 3) {
-    denominatorz0 = interp_table[0][1] - 2.;
-    denominatorz1 = interp_table[7][1] - 2.;
-  }
-  else {
-    denominatorz0  = interp_table[0][0] + interp_table[0][1] - 2.;
-    denominatorz1 = interp_table[7][0] + interp_table[7][1] - 2.;
-  }
-  Type z0 = - (2 * interp_table[0][2]) / denominatorz0;
-  Type z1 = - (2 * interp_table[7][2]) / denominatorz1;
-
-  double W[27];
-  for(unsigned j = 0; j < 27; j++) {
-    if(j < 8) {
-      W[j] = interp_table[j][3] ;
-    }
-    else {
-      W[j] = midpoint_table[j][3] ;
-    }
-  }
-
-  const double &s1 = (x - x0) / (x1 - x0);
-  const double &s2 = (y - y0) / (y1 - y0);
-  const double &s3 = (z - z0) / (z1 - z0);
-
-  double phi[3];
-  phi[0] = (1. - s1) * (1. - 2. * s1);
-  phi[1] = 4. * s1 * (1. -  s1);
-  phi[2] = s1 * (2. * s1 - 1.);
-
-  double b[3][3];
-  b[0][0] = W[0] * phi[0] + W[8] * phi[1] + W[1] * phi[2];
-  b[0][1] = W[11] * phi[0] + W[20] * phi[1] + W[9] * phi[2];
-  b[0][2] = W[3] * phi[0] + W[10] * phi[1] + W[2] * phi[2];
-
-  b[1][0] = W[16] * phi[0] + W[22] * phi[1] + W[17] * phi[2];
-  b[1][1] = W[25] * phi[0] + W[26] * phi[1] + W[23] * phi[2];
-  b[1][2] = W[19] * phi[0] + W[24] * phi[1] + W[18] * phi[2];
-
-  b[1][0] = W[4] * phi[0] + W[12] * phi[1] + W[5] * phi[2];
-  b[1][1] = W[15] * phi[0] + W[21] * phi[1] + W[13] * phi[2];
-  b[1][2] = W[7] * phi[0] + W[14] * phi[1] + W[6] * phi[2];
-
-
-  phi[0] = (1. - s2) * (1. - 2. * s2);
-  phi[1] = 4. * s2 * (1. -  s2);
-  phi[2] = s2 * (2. * s2 - 1.);
-  double a[3] = {0., 0., 0.};
-  for(unsigned i = 0; i < 3; i++) {
-    for(unsigned j = 0; j < 3; j++) {
-      a[i] += b[i][j] * phi[j];
-    }
-  }
-
-  phi[0] = (1. - s3) * (1. - 2. * s3);
-  phi[1] = 4. * s3 * (1. -  s3);
-  phi[2] = s3 * (2. * s3 - 1.);
-  Type weight = a[0] * phi[0] + a[1] * phi[1] +  a[2] * phi[2];
-  return weight;
-}
+// double GetBiquadraticInterpolation(const std::vector<double> & W, const std::vector<double> & s) {
+//
+//
+//   const double &s1 = s[0];
+//   const double &s2 = s[1];
+//   const double &s3 = s[2];
+//
+//   double phi[3];
+//   phi[0] = (1. - s1) * (1. - 2. * s1);
+//   phi[1] = 4. * s1 * (1. -  s1);
+//   phi[2] = s1 * (2. * s1 - 1.);
+//
+//   double b[3][3];
+//   b[0][0] = W[0] * phi[0] + W[8] * phi[1] + W[1] * phi[2];
+//   b[0][1] = W[11] * phi[0] + W[20] * phi[1] + W[9] * phi[2];
+//   b[0][2] = W[3] * phi[0] + W[10] * phi[1] + W[2] * phi[2];
+//
+//   b[1][0] = W[16] * phi[0] + W[22] * phi[1] + W[17] * phi[2];
+//   b[1][1] = W[25] * phi[0] + W[26] * phi[1] + W[23] * phi[2];
+//   b[1][2] = W[19] * phi[0] + W[24] * phi[1] + W[18] * phi[2];
+//
+//   b[1][0] = W[4] * phi[0] + W[12] * phi[1] + W[5] * phi[2];
+//   b[1][1] = W[15] * phi[0] + W[21] * phi[1] + W[13] * phi[2];
+//   b[1][2] = W[7] * phi[0] + W[14] * phi[1] + W[6] * phi[2];
+//
+//   phi[0] = (1. - s2) * (1. - 2. * s2);
+//   phi[1] = 4. * s2 * (1. -  s2);
+//   phi[2] = s2 * (2. * s2 - 1.);
+//   double a[3] = {0., 0., 0.};
+//   for(unsigned i = 0; i < 3; i++) {
+//     for(unsigned j = 0; j < 3; j++) {
+//       a[i] += b[i][j] * phi[j];
+//     }
+//   }
+//
+//   phi[0] = (1. - s3) * (1. - 2. * s3);
+//   phi[1] = 4. * s3 * (1. -  s3);
+//   phi[2] = s3 * (2. * s3 - 1.);
+//   double weight = a[0] * phi[0] + a[1] * phi[1] +  a[2] * phi[2];
+//
+//   return weight;
+//
+// }
+//
+// template <class Type>
+// Type GetTriquadraticInterpolation(const int table, std::vector< std::vector< Type >> & interp_table, std::vector< std::vector< Type >> & midpoint_table, const std::vector< Type > &interp_point) {
+//
+//   Type x = interp_point[0];
+//   Type y = interp_point[1];
+//
+//   Type denominator(0), denominatorz0(0), denominatorz1(0);
+//
+//   if(table < 2 || table > 3) denominator = y - 2;
+//   else denominator = x + y - 2;
+//
+//   Type z = -(2 * interp_point[2]) / denominator;
+//
+//
+//   Type c_000 = interp_table[0][3];
+//   Type c_100 = interp_table[1][3];
+//   Type c_110 = interp_table[2][3];
+//   Type c_010 = interp_table[3][3];
+//   Type c_001 = interp_table[4][3];
+//   Type c_101 = interp_table[5][3];
+//   Type c_111 = interp_table[6][3];
+//   Type c_011 = interp_table[7][3];
+//
+//   Type x0 = interp_table[0][0];
+//   Type x1 = interp_table[1][0];
+//   Type y0 = interp_table[0][1];
+//   Type y1 = interp_table[7][1];
+//   if(table < 2 || table > 3) {
+//     denominatorz0 = interp_table[0][1] - 2.;
+//     denominatorz1 = interp_table[7][1] - 2.;
+//   }
+//   else {
+//     denominatorz0  = interp_table[0][0] + interp_table[0][1] - 2.;
+//     denominatorz1 = interp_table[7][0] + interp_table[7][1] - 2.;
+//   }
+//   Type z0 = - (2 * interp_table[0][2]) / denominatorz0;
+//   Type z1 = - (2 * interp_table[7][2]) / denominatorz1;
+//
+//   double W[27];
+//   for(unsigned j = 0; j < 27; j++) {
+//     if(j < 8) {
+//       W[j] = interp_table[j][3] ;
+//     }
+//     else {
+//       W[j] = midpoint_table[j][3] ;
+//     }
+//   }
+//
+//   const double &s1 = (x - x0) / (x1 - x0);
+//   const double &s2 = (y - y0) / (y1 - y0);
+//   const double &s3 = (z - z0) / (z1 - z0);
+//
+//   double phi[3];
+//   phi[0] = (1. - s1) * (1. - 2. * s1);
+//   phi[1] = 4. * s1 * (1. -  s1);
+//   phi[2] = s1 * (2. * s1 - 1.);
+//
+//   double b[3][3];
+//   b[0][0] = W[0] * phi[0] + W[8] * phi[1] + W[1] * phi[2];
+//   b[0][1] = W[11] * phi[0] + W[20] * phi[1] + W[9] * phi[2];
+//   b[0][2] = W[3] * phi[0] + W[10] * phi[1] + W[2] * phi[2];
+//
+//   b[1][0] = W[16] * phi[0] + W[22] * phi[1] + W[17] * phi[2];
+//   b[1][1] = W[25] * phi[0] + W[26] * phi[1] + W[23] * phi[2];
+//   b[1][2] = W[19] * phi[0] + W[24] * phi[1] + W[18] * phi[2];
+//
+//   b[1][0] = W[4] * phi[0] + W[12] * phi[1] + W[5] * phi[2];
+//   b[1][1] = W[15] * phi[0] + W[21] * phi[1] + W[13] * phi[2];
+//   b[1][2] = W[7] * phi[0] + W[14] * phi[1] + W[6] * phi[2];
+//
+//
+//   phi[0] = (1. - s2) * (1. - 2. * s2);
+//   phi[1] = 4. * s2 * (1. -  s2);
+//   phi[2] = s2 * (2. * s2 - 1.);
+//   double a[3] = {0., 0., 0.};
+//   for(unsigned i = 0; i < 3; i++) {
+//     for(unsigned j = 0; j < 3; j++) {
+//       a[i] += b[i][j] * phi[j];
+//     }
+//   }
+//
+//   phi[0] = (1. - s3) * (1. - 2. * s3);
+//   phi[1] = 4. * s3 * (1. -  s3);
+//   phi[2] = s3 * (2. * s3 - 1.);
+//   Type weight = a[0] * phi[0] + a[1] * phi[1] +  a[2] * phi[2];
+//   return weight;
+// }
