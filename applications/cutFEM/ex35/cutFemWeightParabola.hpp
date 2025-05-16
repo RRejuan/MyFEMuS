@@ -348,9 +348,9 @@ void CutFemWeightParabola<TypeIO, TypeA>::operator()(const int &s, const TypeA &
 
     PolyBasis(x, bo);
 
-    double weight = 0.;
+    TypeA weight = 0.;
     for(unsigned i = 0; i < _L; i++) {
-      weight += static_cast<double>(_Co[i] * bo[i]);
+      weight += _Co[i] * static_cast<TypeA>(bo[i]);
     }
     weightCF[ig] = static_cast<TypeIO>(weight);
   }

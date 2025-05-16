@@ -178,10 +178,10 @@ Parabola <Type>  get_parabola_equation(const PointT <Type> p1, const PointT <Typ
 //        b = -1.;
 //        d = p1.x ;
 //     }
-
+/*
   if(fabs(k) < 0.0000000000000001) k = 0 ;
   if(fabs(b) < 0.0000000000000001) b = 0 ;
-  if(fabs(d) < 0.0000000000000001) d = 0 ;
+  if(fabs(d) < 0.0000000000000001) d = 0 ;*/
 
   return {k, b, d};
 }
@@ -3009,7 +3009,7 @@ using namespace femus;
 int main (int argc, char** args) {
 
   FemusInit mpinit (argc, args, MPI_COMM_WORLD);
-
+  //TODO check what happens when we switch from OCT to double and we do basic operation like addition, subtraction, multiprecision, exponent etc.
 
   typedef cpp_bin_float_oct Type;
   unsigned int m = 0;
@@ -3017,7 +3017,63 @@ int main (int argc, char** args) {
   int s = 0;
   Type k, b, d, a = 0, c = 1;
 
-  std::cout.precision(16);
+  std::cout.precision(50);
+
+  double d1,d2,d3,d4,d5,d6;
+  Type T1,T2,T3,T4,T5,T6;
+
+
+
+  double aa = sqrt(2);
+  Type   bb = Type(aa);
+  cout << " bb = " << bb <<endl;
+  bb = sqrt (Type(2)) ;
+  cout << " bb = " << bb <<endl;
+
+  Type cc = sqrt(2) - bb ;
+  cout << " c = " << cc <<endl;
+
+  cc = sqrt(Type(2)) - bb ;
+  cout << " c = " << cc <<endl;
+
+  cout << " 2./3. = " << 2./3. <<" 2/3 = " << static_cast<Type>(2)/static_cast<Type>(3);
+
+//   cc = (static_cast<Type>(3) - static_cast<Type>(2) * bb)/static_cast<Type>(2) ;
+//   cout << " c = " << cc <<endl;
+
+  return 0;
+
+  d1= 0.12345678901234567890123456789012345678901234567890;
+  d2= 0.23456789012345678901234567890123456789012345678901;
+  d3= 0.34567890123456789012345678901234567890123456789012;
+  d4= 0.78901234567890123456789012345678901234567890123456;
+
+  T1= 0.12345678901234567890123456789012345678901234567890;
+  T2= 0.23456789012345678901234567890123456789012345678901;
+  T3= 0.34567890123456789012345678901234567890123456789012;
+  T4= 0.78901234567890123456789012345678901234567890123456;
+
+  d1 = static_cast<double>(T1);
+  d2 = static_cast<double>(T2);
+  d3 = static_cast<double>(T3);
+  d4 = static_cast<double>(T4);
+
+  cout << " Double value = " << d1 << " " << d2 << " " << d3 << " " << d4 << endl;
+  cout << " Type value   = " << T1 << " " << T2 << " " << T3 << " " << T4 << endl;
+
+  cout << " Double addition = " << 0.5 + d3 + d4 << endl;
+  cout << " Type addition   = " << 0.5 + T3 + T4 << endl;
+
+  cout << " Double subtraction = " << d1 - d2 << "   " << 0.5 - d3 << endl;
+  cout << " Type subtraction   = " << T1 - T2 << "   " << static_cast<Type>(0.5) - T3 << endl;
+
+  cout << " Double multplication = " << d1*d2 << "   " << d4/d3 << endl;
+  cout << " Type multiplication  = " << T1*T2 << "   " << T4/T3 << endl;
+
+  cout << " Double sqrt = " << sqrt(d1) << "   " << endl;
+  cout << " Type sqrt   = " << sqrt(T1) << "   " << endl;
+  cout << " Type sqrt in= " << static_cast<double>(sqrt(T1)) << "   " << endl;
+return 0;
 
   PointT <Type> p1, p2, p3;
   p1 = { static_cast<Type>(0.), static_cast<Type>(0.4471) };
@@ -3249,18 +3305,24 @@ int main (int argc, char** args) {
               if(checksign == 1) {
                 normal = false;
               }
-              Type ref_formula_area(0);
 
-
-
-
+              double ref_formula_area =0;
               if(normal) {   //using second area beacause we want to use the formula on q directly after the transformation. TODO or should we always use first area integral with P
-                ref_formula_area = find_trig_area_2intersection_formula_second<Type>(0, 0, 0, 0, 1, old_table,  q1,  q2, q3);
+                ref_formula_area = static_cast<double>(find_trig_area_2intersection_formula_second<Type>(0, 0, 0, 0, 1, old_table,  q1,  q2, q3));
               }
 
               else {
-                ref_formula_area = 0.5 - find_trig_area_2intersection_formula_second<Type>(0, 0, 0, 0, 1, old_table,  q1,  q2, q3);
+                ref_formula_area = 0.5 - static_cast<double>(find_trig_area_2intersection_formula_second<Type>(0, 0, 0, 0, 1, old_table,  q1,  q2, q3));
               }
+
+//               Type ref_formula_area(0);
+//               if(normal) {   //using second area beacause we want to use the formula on q directly after the transformation. TODO or should we always use first area integral with P
+//                 ref_formula_area = find_trig_area_2intersection_formula_second<Type>(0, 0, 0, 0, 1, old_table,  q1,  q2, q3);
+//               }
+//
+//               else {
+//                 ref_formula_area = static_cast<Type>(0.5) - find_trig_area_2intersection_formula_second<Type>(0, 0, 0, 0, 1, old_table,  q1,  q2, q3);
+//               }
 
 
 
@@ -3342,7 +3404,7 @@ int main (int argc, char** args) {
                 if(!normal) {
                   for(unsigned aq = 0; aq < interp_point_weights.size(); aq++) {
 
-                    interp_point_weights[aq] = 1 - interp_point_weights[aq];
+                    interp_point_weights[aq] = 1. - interp_point_weights[aq];
                   }
                 }
 
