@@ -565,21 +565,19 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
   Parabola <Type> parabola;
   Type ankor(0) ;
 
-  if( fabs(p1.x - p2.x) < 0.0000000000001 ){
-      if (table == 2){  //this is old table takes care of both actual table 2 and three.
-        area = (1. - pow(   (1. - (1. - p1.x))   ,(2. + m + n)     )     ) / ( (1. + n)*(2. + m + n));
-//         area =100;
-//         cout<< "."<<endl;
-        return area;
-      }
-      if (table == 1){
-       area = 0;
-       return area;
-      }
-
-  }
-
-
+//   if( fabs(p1.x - p2.x) < 0.0000000000001 ){
+//       if (table == 2){  //this is old table takes care of both actual table 2 and three.
+//         area = (1 - pow(   (1 - (1 - p1.x))   ,(2 + m + n)     )     ) / ( (1 + n)*(2 + m + n));
+// //         area =100;
+// //         cout<< "."<<endl;
+//         return area;
+//       }
+//       if (table == 1){
+//        area = 0;
+//        return area;
+//       }
+//
+//   }
 
   parabola = get_parabola_equation(p1, p2, p3);
 
@@ -588,7 +586,7 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
   Type d = parabola.d;
   Type singleintersection;
 
-//     cout << "\n---------------------- \n points = \n("<<p1.x<<","<<p1.y<<")\n"<<"("<<p2.x<<","<<p2.y<<")\n"<<"("<<p3.x<<","<<p3.y<<")\n"<<endl;
+//     cout << "\n----------------------All the q points \n points = \n("<<p1.x<<","<<p1.y<<")\n"<<"("<<p2.x<<","<<p2.y<<")\n"<<"("<<p3.x<<","<<p3.y<<")\n"<<endl;
 //     cout<< "parabola = "<<k<<"x^2 +"<<b<<"x+"<<d<<"+y=0"<<endl;
 
   bool do_line = 0;
@@ -599,7 +597,7 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
       if(k > 0) {
         ankor = p1.x;
         do_line = 1;
-        Type delta = (b + 1.) * (b + 1.) - 4 * k * d;
+        Type delta = (b + 1) * (b + 1) - 4 * k * d;
         //         cout << " k = "<< k << " b = "<< b << " d ="<< d << " delta = " << delta <<endl;
         if(delta >= 0) {
           Type sqrtdelta = sqrt(delta);
@@ -607,7 +605,7 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
           for(unsigned i = 0; i < 2; i++) {
             Type x = (- (b + 1) - sign * sqrtdelta) / (2 * k);
             //             cout<< "Top x = "<< x<< endl;
-            if(x > 0 && x < 1 && x > p1.x) {
+            if(x >= 0 && x <= 1 && x >= p1.x) {
               ankor = x;
 
             }
@@ -618,20 +616,19 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
       //                           cout<<"\nankor" << ankor <<endl;
 
     }
-
     else if(table == 2) { // There are six possible cases we have to use modified integrals
       do_line = 1;
       if(k >= 0) { //concave down (2 possible scenerio)
         ankor = p1.x;
         if(p1.x < p2.x) { //case (a) take highest p1.x
-          Type delta = (b + 1.) * (b + 1.) - 4 * k * d;
+          Type delta = (b + 1) * (b + 1) - 4 * k * d;
           if(delta >= 0) {
             Type sqrtdelta = sqrt(delta);
             int sign = 1;    //TODO we can get rid of this if
             for(unsigned i = 0; i < 2; i++) {
               Type x = (- (b + 1) - sign * sqrtdelta) / (2 * k);
               //          cout<< "Top x = "<< x<< endl;
-              if(x > 0 && x < 1 && x > p1.x) {
+              if(x >= 0 && x <= 1 && x >=p1.x) {
                 ankor = x;
               }
               sign *= -1;
@@ -639,14 +636,14 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
           }
         }
         else { //case b and c  take lowest p1.x
-          Type delta = (b + 1.) * (b + 1.) - 4 * k * d;
+          Type delta = (b + 1) * (b + 1) - 4 * k * d;
           if(delta >= 0) {
             Type sqrtdelta = sqrt(delta);
             int sign = (k > 0) ? -1 : 1;  //this gives us highest p1.x first then lowest.
             for(unsigned i = 0; i < 2; i++) {
               Type x = (- (b + 1) - sign * sqrtdelta) / (2 * k);
               //          cout<< "Top x = "<< x<< endl;
-              if(x > 0 && x < 1 && x < p1.x) {
+              if(x >= 0 && x <= 1 && x <= p1.x) {
                 ankor = x;
               }
               sign *= -1;
@@ -665,7 +662,7 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
             for(unsigned i = 0; i < 2; i++) {
               Type x = (- b - sign * sqrtdelta) / (2 * k);
               //          cout<< "Top x = "<< x<< endl;
-              if(x > 0 && x < 1 && x < p2.x) {
+              if(x >= 0 && x <= 1 && x <= p2.x) {
                 ankor = x;
               }
               sign *= -1;
@@ -680,7 +677,7 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
             for(unsigned i = 0; i < 2; i++) {
               Type x = (- (b) - sign * sqrtdelta) / (2 * k);
               //          cout<< "Top x = "<< x<< endl;
-              if(x > 0 && x < 1 && x > p2.x) { //highest p2.x
+              if(x >= 0 && x <= 1 && x >= p2.x) { //highest p2.x
                 ankor = x;
               }
               sign *= -1;
@@ -701,7 +698,7 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
           for(unsigned i = 0; i < 2; i++) {
             Type x = (- b - sign * sqrtdelta) / (2 * k);
             //             cout<< "Top x = "<< x<< endl;
-            if(x < 1 && x > 0 && x > p2.x) {    //highest p2.x  //TODO should use if ( x>0 &&  x < 1 && x < p2.x )
+            if(x <= 1 && x >= 0 && x >= p2.x) {    //highest p2.x  //TODO should use if ( x>0 &&  x < 1 && x < p2.x )
               ankor = x;
             }
             sign *= -1;
@@ -709,7 +706,6 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
         }
       }
     }
-
   }
   pol2[0] = parabola.k;
   pol2[1] = parabola.b;
@@ -802,54 +798,58 @@ Type find_trig_area_2intersection_formula_second(const unsigned &m, const unsign
     area = A1 + A2 + A3;
   }
 
-  //this is just calculating area forcefuly
+//   this is just calculating area forcefuly
 
-//         pol1[0] = k+a; pol1[1] = b + c; pol1[2] = d;
-//         GetIntervalall<Type, double>(pol1, pol2, I1, I2, I3);
-//
-//         if(I1.size() > 0) {
-//             A1 = trig_integral_A3(m, n, s, a, c, pol2, I1) -  trig_integral_A2(m, n, s, a, c, pol2, I1);
-//         }
-//         if(I2.size() > 0) {
-//             A2 = trig_integral_A2(m, n, s, a, c, pol2, I2);
-//         }
-//         if(I3.size() > 0) {
-//             A3 = trig_integral_A3(m, n, s, a, c, pol2, I3);
-//         }
-//         area = A1 + A2 + A3;
+        pol1[0] = k+a; pol1[1] = b + c; pol1[2] = d;
+        GetIntervalall<Type, double>(pol1, pol2, I1, I2, I3);
+
+        if(I1.size() > 0) {
+            A1 = trig_integral_A3(m, n, s, a, c, pol2, I1) -  trig_integral_A2(m, n, s, a, c, pol2, I1);
+        }
+        if(I2.size() > 0) {
+            A2 = trig_integral_A2(m, n, s, a, c, pol2, I2);
+        }
+        if(I3.size() > 0) {
+            A3 = trig_integral_A3(m, n, s, a, c, pol2, I3);
+        }
+        area = A1 + A2 + A3;
 
   return area ;
 }
+
+
+
+
 
 template <class Type>
 void change_points_covert_table(const PointT <Type> &p1, const PointT <Type> &p2, const PointT <Type> &p3, const int &actual_table, int &old_table, PointT <Type> &q1, PointT <Type> &q2, PointT <Type> &q3, bool &vertical) {
 
   if(actual_table < 3) {
     vertical = true ;
-    q1 = {(1. - p1.x), p1.y};
-    q2 = {(1. - p2.x), p2.y};
-    q3 = {(1. - p3.x), p3.y};
+    q1 = {(1 - p1.x), p1.y};
+    q2 = {(1 - p2.x), p2.y};
+    q3 = {(1 - p3.x), p3.y};
 
     if(actual_table == 0) { // swap q1 and q2
       old_table = 1 ;
-      q1 = {(1. - p2.x), p2.y};
-      q2 = {(1. - p1.x), p1.y};
+      q1 = {(1 - p2.x), p2.y};
+      q2 = {(1 - p1.x), p1.y};
     }
     else if(actual_table == 1) old_table = 3 ;
     else if(actual_table == 2) old_table = 2 ;
   }
   else {
     vertical = false ;
-    q1 = {(1. - p1.y), p1.x};
-    q2 = {(1. - p2.y), p2.x};
-    q3 = {(1. - p3.y), p3.x};
+    q1 = {(1 - p1.y), p1.x};
+    q2 = {(1 - p2.y), p2.x};
+    q3 = {(1 - p3.y), p3.x};
 
     if(actual_table == 3) old_table = 2 ;
     else if(actual_table == 4) old_table = 3 ;
     else if(actual_table == 5) {
       old_table = 1 ;
-      q1 = {(1. - p2.y), p2.x};
-      q2 = {(1. - p1.y), p1.x};
+      q1 = {(1 - p2.y), p2.x};
+      q2 = {(1 - p1.y), p1.x};
     }
   }
 }
@@ -864,6 +864,15 @@ Type find_trig_area_2intersection_formula_first(const unsigned &m, const unsigne
 
   change_points_covert_table<Type>(p1, p2, p3, actual_table, old_table, q1, q2, q3, vertical);
   area = find_trig_area_2intersection_formula_second<Type>(m, n, s, a, c, old_table,  q1,  q2, q3);
+
+//   if (m==0 && n==0){
+//    cout<< " ############### The area calculated here is = " << area <<endl;
+//
+//        cout << "\n----------------------All the p points \n points = \n("<<p1.x<<","<<p1.y<<")\n"<<"("<<p2.x<<","<<p2.y<<")\n"<<"("<<p3.x<<","<<p3.y<<")\n"<<endl;
+//         cout << "\n----------------------All the q points \n points = \n("<<q1.x<<","<<q1.y<<")\n"<<"("<<q2.x<<","<<q2.y<<")\n"<<"("<<q3.x<<","<<q3.y<<")\n"<<endl;
+//           cout << "actual table =" << actual_table << " old table = " << old_table <<endl;
+//
+//   }
 
   return area;
 }
@@ -1396,7 +1405,7 @@ void get_p1_p2_p3(const int &table, const std::vector<double> &corner, PointT <T
 
     p1 = {static_cast<Type>(0), i1_pm_eps};
     p2 = {i2_pm_eps, static_cast<Type>(1) - i2_pm_eps};
-    p3 = {(p1.x + p2.x) * 0.5, i3_pm_eps};
+    p3 = {(p1.x + p2.x) / 2, i3_pm_eps};
     break;
 
   case 1:
@@ -1405,13 +1414,13 @@ void get_p1_p2_p3(const int &table, const std::vector<double> &corner, PointT <T
     i3_pm_eps = static_cast<Type>(corner[2]);
 
     if(corner[1] == 0){
-      i2_pm_eps = static_cast<Type>(corner[1] + epsilon);
+      i2_pm_eps = static_cast<Type>(corner[1] - epsilon);
       i3_pm_eps = static_cast<Type>(corner[2] + epsilon);
     }
 
     p1 = {static_cast<Type>(0), i1_pm_eps};
     p2 = {i2_pm_eps, static_cast<Type>(0)};
-    p3 = {(p1.x + p2.x) * 0.5, i3_pm_eps};
+    p3 = {(p1.x + p2.x)/2, i3_pm_eps};
     break;
 
   case 2:
@@ -1426,7 +1435,7 @@ void get_p1_p2_p3(const int &table, const std::vector<double> &corner, PointT <T
 
     p1 = {i1_pm_eps, static_cast<Type>(1) - i1_pm_eps};
     p2 = {i2_pm_eps, static_cast<Type>(0)};
-    p3 = {(p1.x + p2.x) * 0.5, i3_pm_eps};
+    p3 = {(p1.x + p2.x)/2, i3_pm_eps};
     break;
 
   case 3:
@@ -1441,7 +1450,7 @@ void get_p1_p2_p3(const int &table, const std::vector<double> &corner, PointT <T
 
     p1 = {static_cast<Type>(1) - i1_pm_eps, i1_pm_eps};
     p2 = {static_cast<Type>(0), i2_pm_eps};
-    p3 = {i3_pm_eps, (p1.y + p2.y) * 0.5};
+    p3 = {i3_pm_eps, (p1.y + p2.y) / 2};
     break;
 
   case 4:
@@ -1450,13 +1459,13 @@ void get_p1_p2_p3(const int &table, const std::vector<double> &corner, PointT <T
     i3_pm_eps = static_cast<Type>(corner[2]);
 
     if(corner[1] == 0){
-      i2_pm_eps = static_cast<Type>(corner[1] + epsilon);
+      i2_pm_eps = static_cast<Type>(corner[1] - epsilon);
       i3_pm_eps = static_cast<Type>(corner[2] + epsilon);
     }
 
     p1 = {i1_pm_eps, static_cast<Type>(0)};
     p2 = {static_cast<Type>(0), i2_pm_eps};
-    p3 = {i3_pm_eps, (p1.y + p2.y) * 0.5};
+    p3 = {i3_pm_eps, (p1.y + p2.y) / 2};
     break;
 
   case 5:
@@ -1471,7 +1480,7 @@ void get_p1_p2_p3(const int &table, const std::vector<double> &corner, PointT <T
 
     p1 = {i1_pm_eps, static_cast<Type>(0)};
     p2 = {static_cast<Type>(1) - i2_pm_eps, i2_pm_eps};
-    p3 = {i3_pm_eps, (p1.y + p2.y) * 0.5};
+    p3 = {i3_pm_eps, (p1.y + p2.y) / 2};
     break;
 
   }
@@ -1511,146 +1520,146 @@ void find_actual_table_trig(const PointT <Type> &p1, const PointT <Type> &p2,  P
 
   if(vertical) {
 
-    q1 = {(1. - p1.x), p1.y};
-    q2 = {(1. - p2.x), p2.y};
-    q3 = {(1. - p3.x), p3.y};
+    q1 = {(1 - p1.x), p1.y};
+    q2 = {(1 - p2.x), p2.y};
+    q3 = {(1 - p3.x), p3.y};
 
     cout << "vertical q1 = (" << q1.x << "," << q1.y << ")" << endl;
     cout << "q2 = (" << q2.x << "," << q2.y << ")" << endl;
     cout << "q3 = (" << q3.x << "," << q3.y << ")" << endl;
 
-    if(fabs(q3.x - (q1.x + q2.x) / 2.) > epsilon) {
+    if(fabs(q3.x - (q1.x + q2.x) / 2) > epsilon) {
 
       Parabola <Type> parabola = get_parabola_equation(q1, q2, q3) ;
       cout << " ****** Third point q3 changes position from (" << q3.x << "," << q3.y << ") to (" ;
-      q3.x = (q1.x + q2.x) / 2. ;
+      q3.x = (q1.x + q2.x) / 2;
       q3.y = - parabola.k * q3.x * q3.x - parabola.b * q3.x - parabola.d ;
       cout << q3.x << "," << q3.y << ") .******** " << endl;
 
-      p3.x = 1. - q3.x ;
+      p3.x = 1 - q3.x ;
       p3.y = q3.y ;
 
       std::cout << "parabola " << parabola.k << "x^2+" << parabola.b << "x+" << parabola.d << " + y = 0 " << std::endl;
     }
 
-    if(fabs(p1.x - 0.) < epsilon) {
-      if(fabs(p2.x + p2.y - 1.) < epsilon) {
+    if(fabs(p1.x - 0) < epsilon) {
+      if(fabs(p2.x + p2.y - 1) < epsilon) {
         actual_table = 0;
         old_table = 1;
         searchP = {static_cast<double>(p1.y), static_cast<double>(p2.x), static_cast<double>(p3.y)};
         //swap
-        q1 = {(1. - p2.x), p2.y};
-        q2 = {(1. - p1.x), p1.y};
+        q1 = {(1 - p2.x), p2.y};
+        q2 = {(1 - p1.x), p1.y};
 
       }
-      else if(fabs(p2.y - 0.) < epsilon) {
+      else if(fabs(p2.y - 0) < epsilon) {
         actual_table = 1;
         old_table = 3;
         searchP = {static_cast<double>(p1.y), static_cast<double>(p2.x), static_cast<double>(p3.y)};
       }
     }
 
-    else if(fabs(p2.x - 0.) < epsilon) {
-      if(fabs(p1.x + p1.y - 1.) < epsilon) {
+    else if(fabs(p2.x - 0) < epsilon) {
+      if(fabs(p1.x + p1.y - 1) < epsilon) {
         actual_table = 0;
         old_table = 1;
         searchP = {static_cast<double>(p2.y), static_cast<double>(p1.x), static_cast<double>(p3.y)};
       }
-      else if(fabs(p1.y - 0.) < epsilon) {
+      else if(fabs(p1.y - 0) < epsilon) {
         actual_table = 1;
         old_table = 3;
         searchP = {static_cast<double>(p2.y), static_cast<double>(p1.x), static_cast<double>(p3.y)};
         //swap
-        q1 = {(1. - p2.x), p2.y};
-        q2 = {(1. - p1.x), p1.y};
+        q1 = {(1 - p2.x), p2.y};
+        q2 = {(1 - p1.x), p1.y};
       }
     }
 
-    else if(fabs(p1.x + p1.y - 1.) < epsilon) {
-      if(fabs(p2.y - 0.) < epsilon) {
+    else if(fabs(p1.x + p1.y - 1) < epsilon) {
+      if(fabs(p2.y - 0) < epsilon) {
         actual_table = 2;
         old_table = 2;
         searchP = {static_cast<double>(p1.x), static_cast<double>(p2.x), static_cast<double>(p3.y)};
       }
     }
-    else if(fabs(p2.x + p2.y - 1.) < epsilon) {
-      if(fabs(p1.y - 0.) < epsilon) {
+    else if(fabs(p2.x + p2.y - 1) < epsilon) {
+      if(fabs(p1.y - 0) < epsilon) {
         actual_table = 2;
         old_table = 2;
         searchP = {static_cast<double>(p2.x), static_cast<double>(p1.x), static_cast<double>(p3.y)};
         //swap
-        q1 = {(1. - p2.x), p2.y};
-        q2 = {(1. - p1.x), p1.y};
+        q1 = {(1 - p2.x), p2.y};
+        q2 = {(1 - p1.x), p1.y};
       }
     }
   }
   else { //Horizontal
-    q1 = {(1. - p1.y), p1.x};
-    q2 = {(1. - p2.y), p2.x};
-    q3 = {(1. - p3.y), p3.x};
+    q1 = {(1 - p1.y), p1.x};
+    q2 = {(1 - p2.y), p2.x};
+    q3 = {(1 - p3.y), p3.x};
 
     cout << "Hori q1 = (" << q1.x << "," << q1.y << ")" << endl;
     cout << "q2 = (" << q2.x << "," << q2.y << ")" << endl;
     cout << "q3 = (" << q3.x << "," << q3.y << ")" << endl;
-    if(fabs(q3.x - (q1.x + q2.x) / 2.) > epsilon) {
+    if(fabs(q3.x - (q1.x + q2.x) / 2) > epsilon) {
       Parabola <Type> parabola = get_parabola_equation(q1, q2, q3) ;
       cout << " ****** Third point q3 changes position from (" << q3.x << "," << q3.y << ") to (" ;
-      q3.x = (q1.x + q2.x) / 2. ;
+      q3.x = (q1.x + q2.x) / 2 ;
       q3.y = - parabola.k * q3.x * q3.x - parabola.b * q3.x - parabola.d ;
       cout << q3.x << "," << q3.y << ") .******** " << endl;
-      p3.y = 1. - q3.x ;
+      p3.y = 1 - q3.x ;
       p3.x = q3.y;
 
       std::cout << "parabola " << parabola.k << "x^2+" << parabola.b << "x+" << parabola.d << " + y = 0 " << std::endl;
     }
 
 
-    if(fabs(p1.x - 0.) < epsilon) {
-      if(fabs(p2.x + p2.y - 1.) < epsilon) {
+    if(fabs(p1.x - 0) < epsilon) {
+      if(fabs(p2.x + p2.y - 1) < epsilon) {
         actual_table = 3;
         old_table = 2;
         searchP = {static_cast<double>(p2.y), static_cast<double>(p1.y), static_cast<double>(p3.x)};
         //swap
-        q1 = {(1. - p2.y), p2.x};
-        q2 = {(1. - p1.y), p1.x};
+        q1 = {(1 - p2.y), p2.x};
+        q2 = {(1 - p1.y), p1.x};
       }
-      else if(fabs(p2.y - 0.) < epsilon) {
+      else if(fabs(p2.y - 0) < epsilon) {
         actual_table = 4;
         old_table = 3;
         searchP = {static_cast<double>(p2.x), static_cast<double>(p1.y), static_cast<double>(p3.x)};
         //swap
-        q1 = {(1. - p2.y), p2.x};
-        q2 = {(1. - p1.y), p1.x};
+        q1 = {(1 - p2.y), p2.x};
+        q2 = {(1 - p1.y), p1.x};
       }
     }
-    else if(fabs(p2.x - 0.) < epsilon) {
-      if(fabs(p1.x + p1.y - 1.) < epsilon) {
+    else if(fabs(p2.x - 0) < epsilon) {
+      if(fabs(p1.x + p1.y - 1) < epsilon) {
         actual_table = 3;
         old_table = 2;
         searchP = {static_cast<double>(p1.y), static_cast<double>(p2.y), static_cast<double>(p3.x)};
       }
-      else if(fabs(p1.y - 0.) < epsilon) {
+      else if(fabs(p1.y - 0) < epsilon) {
         actual_table = 4;
         old_table = 3;
         searchP = {static_cast<double>(p1.x), static_cast<double>(p2.y), static_cast<double>(p3.x)};
       }
     }
 
-    else if(fabs(p1.x + p1.y - 1.) < epsilon) {
-      if(fabs(p2.y - 0.) < epsilon) {
+    else if(fabs(p1.x + p1.y - 1) < epsilon) {
+      if(fabs(p2.y - 0) < epsilon) {
         actual_table = 5;
         old_table = 1;
         searchP = {static_cast<double>(p2.x), static_cast<double>(p1.y), static_cast<double>(p3.x)};
       }
     }
-    else if(fabs(p2.x + p2.y - 1.) < epsilon) {
-      if(fabs(p1.y - 0.) < epsilon) {
+    else if(fabs(p2.x + p2.y - 1) < epsilon) {
+      if(fabs(p1.y - 0) < epsilon) {
         actual_table = 5;
         old_table = 1;
         searchP = {static_cast<double>(p1.x), static_cast<double>(p2.y), static_cast<double>(p3.x)};
         //swap
-        q1 = {(1. - p2.y), p2.x};
-        q2 = {(1. - p1.y), p1.x};
+        q1 = {(1 - p2.y), p2.x};
+        q2 = {(1 - p1.y), p1.x};
       }
     }
   }
@@ -1721,10 +1730,138 @@ void find_actual_table_trig(const PointT <Type> &p1, const PointT <Type> &p2,  P
 
 }
 
+template <class Type>
+void find_actual_table_trig_with_edge(const PointT <Type> &p1, const PointT <Type> &p2,  PointT <Type> &p3, int &actual_table, int &old_table, Point3D &searchP, PointT <Type> &q1, PointT <Type> &q2, PointT <Type> &q3, const std::vector <int> &Edge, bool &vertical) {    //TODO re arrange q1 and q2 as this will create a problem in two intersection formula.
+  double epsilon = 0.0000000000001;
+  vertical = true;
+  bool xSpan = false;
+  bool ySpan = false;
+
+  if((p1.x < p3.x && p3.x < p2.x) || (p2.x < p3.x && p3.x < p1.x)) xSpan = true ;
+  if((p1.y < p3.y && p3.y < p2.y) || (p2.y < p3.y && p3.y < p1.y)) ySpan = true ;
+
+  cout << "xspan = " << xSpan << " ySpan = " << ySpan << endl;
+
+  if(xSpan) {
+    if(ySpan) {
+      double dx = min(fabs(static_cast<double>(p1.x - p3.x)), fabs(static_cast<double>(p1.x - p3.x)));
+      double dy = min(fabs(static_cast<double>(p1.y - p3.y)), fabs(static_cast<double>(p1.y - p3.y)));
+      if(dx >= dy) vertical = true;
+      else vertical = false;
+    }
+    else {
+      vertical = true;
+    }
+  }
+  else {
+    if(ySpan) vertical = false;
+    else {
+      std::cout << " The parabola formed by this three points is not a function. Use line cuts " << std::endl;
+
+    }
+  }
+
+  if(vertical) {
+
+    q1 = {(1 - p1.x), p1.y};
+    q2 = {(1 - p2.x), p2.y};
+    q3 = {(1 - p3.x), p3.y};
+
+    cout << "vertical q1 = (" << q1.x << "," << q1.y << ")" << endl;
+    cout << "q2 = (" << q2.x << "," << q2.y << ")" << endl;
+    cout << "q3 = (" << q3.x << "," << q3.y << ")" << endl;
+
+    if(fabs(q3.x - (q1.x + q2.x) / 2) > epsilon) {
+
+      Parabola <Type> parabola = get_parabola_equation(q1, q2, q3) ;
+      cout << " ****** Third point q3 changes position from (" << q3.x << "," << q3.y << ") to (" ;
+      q3.x = (q1.x + q2.x) / 2;
+      q3.y = - parabola.k * q3.x * q3.x - parabola.b * q3.x - parabola.d ;
+      cout << q3.x << "," << q3.y << ") .******** " << endl;
+
+      p3.x = 1 - q3.x ;
+      p3.y = q3.y ;
+
+      std::cout << "parabola " << parabola.k << "x^2+" << parabola.b << "x+" << parabola.d << " + y = 0 " << std::endl;
+    }
+
+    if (Edge[0] == 0){
+      if(Edge[1] == 1){
+        actual_table = 2;
+        old_table = 2;
+        searchP = {static_cast<double>(p2.x), static_cast<double>(p1.x), static_cast<double>(p3.y)};
+        //swap
+        q1 = {(1 - p2.x), p2.y};
+        q2 = {(1 - p1.x), p1.y};
+      }
+      else{
+        actual_table = 1;
+        old_table = 3;
+        searchP = {static_cast<double>(p2.y), static_cast<double>(p1.x), static_cast<double>(p3.y)};
+        //swap
+        q1 = {(1 - p2.x), p2.y};
+        q2 = {(1 - p1.x), p1.y};
+      }
+    }
+    else{ //no need to swap as it swap twice so, first edge become q1.
+      actual_table = 0;
+      old_table = 1;
+      searchP = {static_cast<double>(p2.y), static_cast<double>(p1.x), static_cast<double>(p3.y)};
+    }
+  }
+
+  else { //Horizontal
+    q1 = {(1 - p1.y), p1.x};
+    q2 = {(1 - p2.y), p2.x};
+    q3 = {(1 - p3.y), p3.x};
+
+    cout << "Hori q1 = (" << q1.x << "," << q1.y << ")" << endl;
+    cout << "q2 = (" << q2.x << "," << q2.y << ")" << endl;
+    cout << "q3 = (" << q3.x << "," << q3.y << ")" << endl;
+    if(fabs(q3.x - (q1.x + q2.x) / 2) > epsilon) {
+      Parabola <Type> parabola = get_parabola_equation(q1, q2, q3) ;
+      cout << " ****** Third point q3 changes position from (" << q3.x << "," << q3.y << ") to (" ;
+      q3.x = (q1.x + q2.x) / 2 ;
+      q3.y = - parabola.k * q3.x * q3.x - parabola.b * q3.x - parabola.d ;
+      cout << q3.x << "," << q3.y << ") .******** " << endl;
+      p3.y = 1 - q3.x ;
+      p3.x = q3.y;
+
+      std::cout << "parabola " << parabola.k << "x^2+" << parabola.b << "x+" << parabola.d << " + y = 0 " << std::endl;
+    }
+    if (Edge[0] == 0){
+      if(Edge[1] == 1){
+        actual_table = 5;
+        old_table = 1;
+        searchP = {static_cast<double>(p1.x), static_cast<double>(p2.y), static_cast<double>(p3.x)};
+        //swap
+        q1 = {(1 - p2.y), p2.x};
+        q2 = {(1 - p1.y), p1.x};
+      }
+      else{
+        actual_table = 4;
+        old_table = 3;
+        searchP = {static_cast<double>(p1.x), static_cast<double>(p2.y), static_cast<double>(p3.x)};
+
+
+      }
+    }
+    else{ //no need to swap as it swap twice so, first edge become q1.
+      if(fabs(p1.x + p1.y - 1) < epsilon) {
+        actual_table = 3;
+        old_table = 2;
+        searchP = {static_cast<double>(p1.y), static_cast<double>(p2.y), static_cast<double>(p3.x)};
+    }
+    }
+  }
+}
+
+
 double GaussIntegral(const int &xExp, const int &yExp, const double* xg, const double* yg, const std::vector<double> &interp_point_weights, const double* gaussWeight) {
   double Integral = 0;
   for(unsigned ig = 0; ig < interp_point_weights.size(); ig++) {
-    Integral += pow(xg[ig], xExp) * pow(yg[ig], yExp) * interp_point_weights[ig] * gaussWeight[ig];
+//     Integral += pow(xg[ig], xExp) * pow(yg[ig], yExp) * interp_point_weights[ig] * gaussWeight[ig];
+        Integral += (pow(xg[ig], xExp)+ pow(yg[ig], yExp)) * interp_point_weights[ig] * gaussWeight[ig];
   }
   return Integral;
 }
@@ -1732,24 +1869,24 @@ double GaussIntegral(const int &xExp, const int &yExp, const double* xg, const d
 template <class Type>
 class OctreeNode {
   public:
-    std::vector<Point3D> corners;  // All 8 corners of the node
-    bool isLeaf;
-    std::vector<OctreeNode> children;
-    std::vector<std::vector<double>> cornerAreas;
-    std::vector<std::vector<double>> cornerWeights;
-    std::vector<std::vector<double>> midWeights;
-    int table;
-    unsigned depth;
-    unsigned qM;
-    int s = 0;
-    Type a = 0;
-    double relative_error = -1;
-    double relative_error_opposite = -1;
+    std::vector<Point3D> _corners;  // All 8 corners of the node
+    bool _isLeaf;
+    std::vector<OctreeNode> _children;
+    std::vector<std::vector<double>> _cornerAreas;
+    std::vector<std::vector<double>> _cornerWeights;
+    std::vector<std::vector<double>> _midWeights;
+    int _table;
+    unsigned _depth;
+    unsigned _qM;
+    int _s = 0;
+    Type _a = 0;
+    double _relative_error = -1;
+    double _relative_error_opposite = -1;
     CutFemWeightParabola<double, Type>* _Pweights;
 
-    OctreeNode(const std::vector<Point3D>& _corners, const int& _table, const int& _depth, const unsigned& _qM, CutFemWeightParabola<double, Type>* Pweights)
-      : corners(_corners), isLeaf(true), table(_table), depth(_depth), qM(_qM), _Pweights(Pweights) {
-      if(corners.size() != 8) {
+    OctreeNode(const std::vector<Point3D>& corners, const int& table, const int& depth, const unsigned& qM, CutFemWeightParabola<double, Type>* Pweights)
+      : _corners(corners), _isLeaf(true), _table(table), _depth(depth), _qM(qM), _Pweights(Pweights) {
+      if(_corners.size() != 8) {
         throw std::invalid_argument("OctreeNode must be initialized with exactly 8 corners");
       }
     }
@@ -1762,54 +1899,53 @@ class OctreeNode {
       // Corners are already stored, so we just need to calculate areas and weights
       Type area(0);
       Type c(1);
-      cornerAreas.resize(8);
-      cornerWeights.resize(8);
+      _cornerAreas.resize(8);
+      _cornerWeights.resize(8);
       PointT<Type> p1, p2, p3;
 
-      for(size_t i = 0; i < corners.size(); ++i) {
-        const auto& corner = corners[i];
-        std::vector<double> corner_vec = {corner.x, corner.y, corner.z};
-        get_p1_p2_p3(table, corner_vec, p1, p2, p3);
+      size_t areasSize = (_qM + 1) * (_qM + 2) / 2;
+
+      for(size_t i = 0; i < _corners.size(); ++i) {
+        _cornerAreas[i].resize(areasSize);
+        std::vector<double> corner_vec = {_corners[i].x, _corners[i].y, _corners[i].z};
+        get_p1_p2_p3(_table, corner_vec, p1, p2, p3);
 
         int count = 0;
-        for(unsigned qq = 0; qq <= qM; qq++) {
+        for(unsigned qq = 0; qq <= _qM; qq++) {
           for(unsigned jj = 0; jj <= qq; jj++) {
             unsigned ii = qq - jj;
-            area = find_trig_area_2intersection_formula_first(ii, jj, s, a, c, table, p1, p2, p3);
-            cornerAreas[i].push_back(static_cast<double>(area));
+            area = find_trig_area_2intersection_formula_first(ii, jj, _s, _a, c, _table, p1, p2, p3);
+            _cornerAreas[i][count] = static_cast<double>(area);
             count++;
           }
         }
-        (*_Pweights)(s, a, c, table, p1, p2, p3, cornerWeights[i]);
+        (*_Pweights)(_s, _a, c, _table, p1, p2, p3, _cornerWeights[i]);
       }
     }
 
     void getmiddlepoints_weights() {
-      // Calculate the midpoints first
       std::vector<Point3D> midpoints(19);
       calculateMidpoints(midpoints);
 
       // Resize the midWeights vector to hold weights for all 19 midpoints
-      midWeights.resize(19);
+      _midWeights.resize(19);
 
       // Calculate weights for each midpoint
       Type c(1);
       PointT<Type> p1, p2, p3;
 
-      for(size_t i = 0; i < midpoints.size(); ++i) {
-        const auto& midpoint = midpoints[i];
-        std::vector<double> midpoint_vec = {midpoint.x, midpoint.y, midpoint.z};
+      for(size_t mi = 0; mi < midpoints.size(); ++mi) {
+        std::vector<double> midpoint_vec = {midpoints[mi].x, midpoints[mi].y, midpoints[mi].z};
 
         // Get p1, p2, p3 for this midpoint
-        get_p1_p2_p3(table, midpoint_vec, p1, p2, p3);
+        get_p1_p2_p3(_table, midpoint_vec, p1, p2, p3);
 
         // Use _Pweights to calculate the weights for this midpoint
-        (*_Pweights)(s, a, c, table, p1, p2, p3, midWeights[i]);
+        (*_Pweights)(_s, _a, c, _table, p1, p2, p3, _midWeights[mi]);
       }
     }
-
     void subdivideWithRelativeError_old(int maxDepth, double maxRelativeError, int currentDepth = 0) {
-      if(currentDepth >= maxDepth || !isLeaf) {
+      if(currentDepth >= maxDepth || !_isLeaf) {
         getCorners();
         return;
       }
@@ -1827,23 +1963,21 @@ class OctreeNode {
         Type f_area(0);
         Type c = 1;
         PointT<Type> p1, p2, p3;
-        get_p1_p2_p3(table, interp_point, p1, p2, p3);
+        get_p1_p2_p3(_table, interp_point, p1, p2, p3);
         std::vector<std::vector<double>> interpolation_vector(8);
         int count = 0;
-//               for (unsigned qq = 0; qq <= qM; qq++) {
+//               for (unsigned qq = 0; qq <= _qM; qq++) {
         for(unsigned qq = 0; qq <= 0; qq++) {    //just based on area
           for(unsigned jj = 0; jj <= qq; jj++) {
             unsigned ii = qq - jj;
-            for(size_t ic = 0; ic < corners.size(); ++ic) {
-              interpolation_vector[ic] = {corners[ic].x, corners[ic].y, corners[ic].z, cornerAreas[ic][count]};
+            for(size_t ic = 0; ic < _corners.size(); ++ic) {
+              interpolation_vector[ic] = {_corners[ic].x, _corners[ic].y, _corners[ic].z, _cornerAreas[ic][count]};
             }
 
             // Use the new deformed interpolation function
+            double interp_area = trilinier_interpolation_FEM_orientation<double>(_table, interpolation_vector, interp_point);
 
-
-            double interp_area = trilinier_interpolation_FEM_orientation<double>(table, interpolation_vector, interp_point);
-
-            f_area = find_trig_area_2intersection_formula_first(jj, ii, s, a, c, table, p1, p2, p3);
+            f_area = find_trig_area_2intersection_formula_first(jj, ii, _s, _a, c, _table, p1, p2, p3);
             double formula_area = static_cast<double>(f_area);
             double r_error = fabs(formula_area - interp_area) / formula_area;
             double r_error_opposite = fabs(formula_area - interp_area) / (1. / (ii + jj + 2.) * (jj + 1.) - formula_area);
@@ -1853,58 +1987,58 @@ class OctreeNode {
           }
         }
       }
-      relative_error = *std::max_element(relativeErrors.begin(), relativeErrors.end());
-      relative_error_opposite = *std::max_element(relativeErrorsOpposite.begin(), relativeErrorsOpposite.end());
+      _relative_error = *std::max_element(relativeErrors.begin(), relativeErrors.end());
+      _relative_error_opposite = *std::max_element(relativeErrorsOpposite.begin(), relativeErrorsOpposite.end());
 
       bool force_subdevide = false;
 
-      if(table == 0 || table == 5) {
-        if(corners[1].x > 0.9999999999) {
-          if(corners[1].y < 0.0000000001) {
+      if(_table == 0 || _table == 5) {
+        if(_corners[1].x > 0.9999999999) {
+          if(_corners[1].y < 0.0000000001) {
             force_subdevide = true;
           }
         }
       }
-      else if(table == 1 || table == 4) {
-        if(corners[0].x < 0.0000000001) {
-          if(corners[0].y < 0.0000000001) {
-            force_subdevide = true;
-          }
-        }
-      }
-
-      else if(table == 2 || table == 3) {
-        if(corners[2].x > 0.9999999999) {
-          if(corners[2].y > 0.9999999999) {
+      else if(_table == 1 || _table == 4) {
+        if(_corners[0].x < 0.0000000001) {
+          if(_corners[0].y < 0.0000000001) {
             force_subdevide = true;
           }
         }
       }
 
-//         if((table == 0 || table == 5) && corners[1].x > 0.9999 && corners[1].y < 0.0001) force_subdevide = true;
-//         else if((table == 1 || table == 4) && corners[0].x < 0.0001 && corners[0].y < 0.0001) force_subdevide = true;
-//         else if ((table == 2 || table ==3) && corners[2].x > 0.9999 && corners[2].y > 0.9999) force_subdevide = true;
+      else if(_table == 2 || _table == 3) {
+        if(_corners[2].x > 0.9999999999) {
+          if(_corners[2].y > 0.9999999999) {
+            force_subdevide = true;
+          }
+        }
+      }
+
+//         if((_table == 0 || _table == 5) && _corners[1].x > 0.9999 && _corners[1].y < 0.0001) force_subdevide = true;
+//         else if((_table == 1 || _table == 4) && _corners[0].x < 0.0001 && _corners[0].y < 0.0001) force_subdevide = true;
+//         else if ((_table == 2 || _table ==3) && _corners[2].x > 0.9999 && _corners[2].y > 0.9999) force_subdevide = true;
 
 
-      if(depth <= 3 || force_subdevide || relative_error > maxRelativeError || relative_error_opposite > maxRelativeError) {
-        isLeaf = false;
-        children.reserve(children.size() + 8);
+      if(_depth <= 3 || force_subdevide || _relative_error > maxRelativeError || _relative_error_opposite > maxRelativeError) {
+        _isLeaf = false;
+        _children.reserve(_children.size() + 8);
         std::vector<std::vector<Point3D>> childCorners = subdivideCorners();
         for(const auto& childCorner : childCorners) {
-          children.emplace_back(childCorner, table, depth + 1, qM, _Pweights);
+          _children.emplace_back(childCorner, _table, _depth + 1, _qM, _Pweights);
         }
 
-        for(auto& child : children) {
+        for(auto& child : _children) {
           child.subdivideWithRelativeError(maxDepth, maxRelativeError, currentDepth + 1);
         }
 
 //             if(force_subdevide){
-//                for (auto& child : children) {
+//                for (auto& child : _children) {
 //                 child.subdivideWithRelativeError(10, maxRelativeError, currentDepth + 1);
 //                }
 //             }
 //             else{
-//               for (auto& child : children) {
+//               for (auto& child : _children) {
 //                 child.subdivideWithRelativeError(maxDepth, maxRelativeError, currentDepth + 1);
 //               }
 //             }
@@ -1913,7 +2047,7 @@ class OctreeNode {
 
 
     void subdivideWithRelativeError_now(int maxDepth, double maxRelativeError, int currentDepth = 0) {
-      if(!isLeaf) {
+      if(!_isLeaf) {
         getCorners();
         return;  // Already subdivided, no need to process further
       }
@@ -1923,27 +2057,27 @@ class OctreeNode {
       // Determine if this octant contains the target corner we want to force subdivide to depth 10
       bool containsTargetCorner = false;
 
-      if(table == 0 || table == 5) {
+      if(_table == 0 || _table == 5) {
         // Check if this octant contains the corner at x=1, y=0
-        for(const auto& corner : corners) {
+        for(const auto& corner : _corners) {
           if(corner.x > 0.9999999999 && corner.y < 0.0000000001) {
             containsTargetCorner = true;
             break;
           }
         }
       }
-      else if(table == 1 || table == 4) {
+      else if(_table == 1 || _table == 4) {
         // Check if this octant contains the corner at x=0, y=0
-        for(const auto& corner : corners) {
+        for(const auto& corner : _corners) {
           if(corner.x < 0.0000000001 && corner.y < 0.0000000001) {
             containsTargetCorner = true;
             break;
           }
         }
       }
-      else if(table == 2 || table == 3) {
+      else if(_table == 2 || _table == 3) {
         // Check if this octant contains the corner at x=1, y=1
-        for(const auto& corner : corners) {
+        for(const auto& corner : _corners) {
           if(corner.x > 0.9999999999 && corner.y > 0.9999999999) {
             containsTargetCorner = true;
             break;
@@ -1963,7 +2097,6 @@ class OctreeNode {
 
       getCorners();
 
-      // Calculate midpoints for subdivision
       std::vector<Point3D> midpoints(19);
       calculateMidpoints(midpoints);
 
@@ -1977,20 +2110,20 @@ class OctreeNode {
         Type f_area(0);
         Type c = 1;
         PointT<Type> p1, p2, p3;
-        get_p1_p2_p3(table, interp_point, p1, p2, p3);
+        get_p1_p2_p3(_table, interp_point, p1, p2, p3);
         std::vector<std::vector<double>> interpolation_vector(8);
         int count = 0;
         for(unsigned qq = 0; qq <= 0; qq++) {    //just based on area
           for(unsigned jj = 0; jj <= qq; jj++) {
             unsigned ii = qq - jj;
-            for(size_t ic = 0; ic < corners.size(); ++ic) {
-              interpolation_vector[ic] = {corners[ic].x, corners[ic].y, corners[ic].z, cornerAreas[ic][count]};
+            for(size_t ic = 0; ic < _corners.size(); ++ic) {
+              interpolation_vector[ic] = {_corners[ic].x, _corners[ic].y, _corners[ic].z, _cornerAreas[ic][count]};
             }
 
             // Use the new deformed interpolation function
-            double interp_area = trilinier_interpolation_FEM_orientation<double>(table, interpolation_vector, interp_point);
+            double interp_area = trilinier_interpolation_FEM_orientation<double>(_table, interpolation_vector, interp_point);
 
-            f_area = find_trig_area_2intersection_formula_first(jj, ii, s, a, c, table, p1, p2, p3);
+            f_area = find_trig_area_2intersection_formula_first(jj, ii, _s, _a, c, _table, p1, p2, p3);
             double formula_area = static_cast<double>(f_area);
 
 
@@ -2026,26 +2159,26 @@ class OctreeNode {
         }
       }
 
-      relative_error = *std::max_element(relativeErrors.begin(), relativeErrors.end());
-      relative_error_opposite = *std::max_element(relativeErrorsOpposite.begin(), relativeErrorsOpposite.end());
+      _relative_error = *std::max_element(relativeErrors.begin(), relativeErrors.end());
+      _relative_error_opposite = *std::max_element(relativeErrorsOpposite.begin(), relativeErrorsOpposite.end());
 
       // Decide whether to subdivide based on depth, error, or target corner
       bool shouldSubdivide = (currentDepth < 3) ||
-                             (relative_error > maxRelativeError) ||
-                             (relative_error_opposite > maxRelativeError) ||
+                             (_relative_error > maxRelativeError) ||
+                             (_relative_error_opposite > maxRelativeError) ||
                              shouldForceSubdivide;  // Force target corner to subdivide to depth 10
 
       if(shouldSubdivide) {
-        isLeaf = false;
-        children.reserve(children.size() + 8);
+        _isLeaf = false;
+        _children.reserve(_children.size() + 8);
         std::vector<std::vector<Point3D>> childCorners = subdivideCorners();
 
         for(const auto& childCorner : childCorners) {
-          children.emplace_back(childCorner, table, depth + 1, qM, _Pweights);
+          _children.emplace_back(childCorner, _table, _depth + 1, _qM, _Pweights);
         }
 
         // Recursively subdivide all children
-        for(auto& child : children) {
+        for(auto& child : _children) {
           // Pass the same maxDepth for all children
           // The per-child containsTargetCorner check will handle special treatment for target corners
           child.subdivideWithRelativeError(maxDepth, maxRelativeError, currentDepth + 1);
@@ -2054,7 +2187,7 @@ class OctreeNode {
     }
 
     void subdivideWithRelativeError(int maxDepth, double maxRelativeError, int currentDepth = 0) {
-      if(!isLeaf) {
+      if(!_isLeaf) {
         getCorners();
         getmiddlepoints_weights();
         return;  // Already subdivided, no need to process further
@@ -2066,27 +2199,36 @@ class OctreeNode {
       // Determine if this octant contains the target corner we want to force subdivide to depth 10
       bool containsTargetCorner = false;
 
-      if(table == 0 || table == 5) {
+      if(_table == 0 || _table == 5) {
         // Check if this octant contains the corner at x=1, y=0
-        for(const auto& corner : corners) {
+        for(const auto& corner : _corners) {
           if(corner.x > 0.9999999999 && corner.y < 0.0000000001) {
             containsTargetCorner = true;
             break;
           }
+//           if(corner.y < 0.0000000001) {
+//             containsTargetCorner = true;
+//             break;
+//           }
+
         }
       }
-      else if(table == 1 || table == 4) {
+      else if(_table == 1 || _table == 4) {
         // Check if this octant contains the corner at x=0, y=0
-        for(const auto& corner : corners) {
+        for(const auto& corner : _corners) {
           if(corner.x < 0.0000000001 && corner.y < 0.0000000001) {
             containsTargetCorner = true;
             break;
           }
+//           if(corner.y < 0.0000000001) {
+//             containsTargetCorner = true;
+//             break;
+//           }
         }
       }
-      else if(table == 2 || table == 3) {
+      else if(_table == 2 || _table == 3) {
         // Check if this octant contains the corner at x=1, y=1
-        for(const auto& corner : corners) {
+        for(const auto& corner : _corners) {
           if(corner.x > 0.9999999999 && corner.y > 0.9999999999) {
             containsTargetCorner = true;
             break;
@@ -2100,7 +2242,7 @@ class OctreeNode {
       }
 
       // Exit early if we've reached depth 10 for target corners
-      if(currentDepth >= 9 && containsTargetCorner) {
+      if(currentDepth >= 7 && containsTargetCorner) {
         return;
       }
 
@@ -2110,43 +2252,43 @@ class OctreeNode {
       bool shouldForceSubdivide = containsTargetCorner && currentDepth < 9;
 
       double average_area = 0.0;
-      double max_area = cornerAreas[0][0];
-      double min_area = cornerAreas[0][0];
+      double max_area = _cornerAreas[0][0];
+      double min_area = _cornerAreas[0][0];
 
       // Calculate average, find max and min
       for(size_t i = 0; i < 8; ++i) {
-        average_area += cornerAreas[i][0];
-        if(cornerAreas[i][0] > max_area) max_area = cornerAreas[i][0];
-        if(cornerAreas[i][0] < min_area) min_area = cornerAreas[i][0];
+        average_area += _cornerAreas[i][0];
+        if(_cornerAreas[i][0] > max_area) max_area = _cornerAreas[i][0];
+        if(_cornerAreas[i][0] < min_area) min_area = _cornerAreas[i][0];
       }
       average_area /= 8.0;
 
-      relative_error          = std::fabs(max_area - min_area) / average_area;
-      relative_error_opposite = std::fabs(max_area - min_area) / (0.5 - average_area);
+      _relative_error          = std::fabs(max_area - min_area) / average_area;
+      _relative_error_opposite = std::fabs(max_area - min_area) / (0.5 - average_area);
 
       double denominator1 = 2.0 * std::atan(100.0 * (average_area + 0.0001)) / M_PI;
       double denominator2 = 2.0 * std::atan(100.0 * ((0.5 - average_area) + 0.0001)) / M_PI;
 
       // Calculate relative errors with new denominators
-      relative_error = std::fabs(max_area - min_area) / denominator1;
-      relative_error_opposite = std::fabs(max_area - min_area) / denominator2;
+      _relative_error = std::fabs(max_area - min_area) / denominator1;
+      _relative_error_opposite = std::fabs(max_area - min_area) / denominator2;
 
       bool shouldSubdivide = (currentDepth < 3) ||
-                             (relative_error > maxRelativeError) ||
-                             (relative_error_opposite > maxRelativeError) ||
+                             (_relative_error > maxRelativeError) ||
+                             (_relative_error_opposite > maxRelativeError) ||
                              shouldForceSubdivide;  // Force target corner to subdivide to depth 10
 
       if(shouldSubdivide) {
-        isLeaf = false;
-        children.reserve(children.size() + 8);
+        _isLeaf = false;
+        _children.reserve(_children.size() + 8);
         std::vector<std::vector<Point3D>> childCorners = subdivideCorners();
 
         for(const auto& childCorner : childCorners) {
-          children.emplace_back(childCorner, table, depth + 1, qM, _Pweights);
+          _children.emplace_back(childCorner, _table, _depth + 1, _qM, _Pweights);
         }
 
         // Recursively subdivide all children
-        for(auto& child : children) {
+        for(auto& child : _children) {
           // Pass the same maxDepth for all children
           // The per-child containsTargetCorner check will handle special treatment for target corners
           child.subdivideWithRelativeError(maxDepth, maxRelativeError, currentDepth + 1);
@@ -2157,26 +2299,26 @@ class OctreeNode {
     OctreeNode* search(const Point3D& point) {
       // First check if point is even in this node
       if(contains(point)) {
-        std::cout << "\nFound containing node at depth " << depth << ":\n";
+        std::cout << "\nFound containing node at depth " << _depth << ":\n";
         std::cout << "Point: (" << point.x << ", " << point.y << ", " << point.z << ")\n";
-        std::cout << "Rel_error =" << relative_error << ", " << relative_error_opposite << "\n Node corners:\n";
-        for(size_t i = 0; i < corners.size(); ++i) {
+        std::cout << "Rel_error =" << _relative_error << ", " << _relative_error_opposite << "\n Node corners:\n";
+        for(size_t i = 0; i < _corners.size(); ++i) {
           std::cout << "Corner " << i << ": ("
-                    << corners[i].x << ", "
-                    << corners[i].y << ", "
-                    << corners[i].z << ") "
-                    << cornerAreas[i][0] << "\n";
+                    << _corners[i].x << ", "
+                    << _corners[i].y << ", "
+                    << _corners[i].z << ") "
+                    << _cornerAreas[i][0] << "\n";
         }
 
         // If this is a leaf node, we're done
-        if(isLeaf) {
+        if(_isLeaf) {
           std::cout << "This is a leaf node - returning\n";
           return this;
         }
 
         // If not a leaf, check children
 //         std::cout << "Checking " << children.size() << " children\n";
-        for(auto& child : children) {
+        for(auto& child : _children) {
           OctreeNode* result = child.search(point);
           if(result != nullptr) {
             return result;
@@ -2215,45 +2357,45 @@ class OctreeNode {
   private:
 
     void serialize(std::ofstream& ofs) const {
-      ofs.write(reinterpret_cast<const char*>(&isLeaf), sizeof(isLeaf));
-      ofs.write(reinterpret_cast<const char*>(&depth), sizeof(depth));
-      ofs.write(reinterpret_cast<const char*>(&relative_error), sizeof(relative_error));
-      ofs.write(reinterpret_cast<const char*>(&relative_error_opposite), sizeof(relative_error_opposite));
+      ofs.write(reinterpret_cast<const char*>(&_isLeaf), sizeof(_isLeaf));
+      ofs.write(reinterpret_cast<const char*>(&_depth), sizeof(_depth));
+      ofs.write(reinterpret_cast<const char*>(&_relative_error), sizeof(_relative_error));
+      ofs.write(reinterpret_cast<const char*>(&_relative_error_opposite), sizeof(_relative_error_opposite));
 
-      serializeVector(ofs, corners);
-      serializeVector(ofs, cornerAreas);
-      serializeVector(ofs, cornerWeights);
+      serializeVector(ofs, _corners);
+      serializeVector(ofs, _cornerAreas);
+      serializeVector(ofs, _cornerWeights);
 
       // Serialize midWeights
-      serializeVector(ofs, midWeights);
+      serializeVector(ofs, _midWeights);
 
-      size_t childCount = children.size();
+      size_t childCount = _children.size();
       ofs.write(reinterpret_cast<const char*>(&childCount), sizeof(childCount));
-      for(const auto& child : children) {
+      for(const auto& child : _children) {
         child.serialize(ofs);
       }
     }
 
     void deserialize(std::ifstream& ifs) {
-      ifs.read(reinterpret_cast<char*>(&isLeaf), sizeof(isLeaf));
-      ifs.read(reinterpret_cast<char*>(&depth), sizeof(depth));
-      ifs.read(reinterpret_cast<char*>(&relative_error), sizeof(relative_error));
-      ifs.read(reinterpret_cast<char*>(&relative_error_opposite), sizeof(relative_error_opposite));
+      ifs.read(reinterpret_cast<char*>(&_isLeaf), sizeof(_isLeaf));
+      ifs.read(reinterpret_cast<char*>(&_depth), sizeof(_depth));
+      ifs.read(reinterpret_cast<char*>(&_relative_error), sizeof(_relative_error));
+      ifs.read(reinterpret_cast<char*>(&_relative_error_opposite), sizeof(_relative_error_opposite));
 
-      deserializeVector(ifs, corners);
-      deserializeVector(ifs, cornerAreas);
-      deserializeVector(ifs, cornerWeights);
+      deserializeVector(ifs, _corners);
+      deserializeVector(ifs, _cornerAreas);
+      deserializeVector(ifs, _cornerWeights);
 
       // Deserialize midWeights
-      deserializeVector(ifs, midWeights);
+      deserializeVector(ifs, _midWeights);
 
       size_t childCount;
       ifs.read(reinterpret_cast<char*>(&childCount), sizeof(childCount));
-      children.clear();
-      children.reserve(childCount);
+      _children.clear();
+      _children.reserve(childCount);
       for(size_t i = 0; i < childCount; ++i) {
-        children.emplace_back(corners, 0, 0, 0, nullptr);
-        children.back().deserialize(ifs);
+        _children.emplace_back(_corners, 0, 0, 0, nullptr);
+        _children.back().deserialize(ifs);
       }
     }
 
@@ -2305,9 +2447,9 @@ class OctreeNode {
 
     Point3D middleof(Point3D& point1, Point3D& point2) {
       Point3D midpoint{
-        (point1.x + point2.x) / 2.,
-        (point1.y + point2.y) / 2.,
-        (point1.z + point2.z) / 2.
+        (point1.x + point2.x) * 0.5,
+        (point1.y + point2.y) * 0.5,
+        (point1.z + point2.z) * 0.5
       };
       return midpoint;
     }
@@ -2316,22 +2458,22 @@ class OctreeNode {
       midpoints.resize(19);
 
       // Midpoints of bottom face edges (counter-clockwise)
-      midpoints[0] = middleof(corners[0], corners[1]); // Bottom edge: front
-      midpoints[1] = middleof(corners[1], corners[2]); // Bottom edge: right
-      midpoints[2] = middleof(corners[2], corners[3]); // Bottom edge: back
-      midpoints[3] = middleof(corners[3], corners[0]); // Bottom edge: left
+      midpoints[0] = middleof(_corners[0], _corners[1]); // Bottom edge: front
+      midpoints[1] = middleof(_corners[1], _corners[2]); // Bottom edge: right
+      midpoints[2] = middleof(_corners[2], _corners[3]); // Bottom edge: back
+      midpoints[3] = middleof(_corners[3], _corners[0]); // Bottom edge: left
 
       // Midpoints of top face edges (counter-clockwise)
-      midpoints[4] = middleof(corners[4], corners[5]); // Top edge: front
-      midpoints[5] = middleof(corners[5], corners[6]); // Top edge: right
-      midpoints[6] = middleof(corners[6], corners[7]); // Top edge: back
-      midpoints[7] = middleof(corners[7], corners[4]); // Top edge: left
+      midpoints[4] = middleof(_corners[4], _corners[5]); // Top edge: front
+      midpoints[5] = middleof(_corners[5], _corners[6]); // Top edge: right
+      midpoints[6] = middleof(_corners[6], _corners[7]); // Top edge: back
+      midpoints[7] = middleof(_corners[7], _corners[4]); // Top edge: left
 
       // Midpoints of vertical edges
-      midpoints[8] = middleof(corners[0], corners[4]);  // Vertical edge: front-left
-      midpoints[9] = middleof(corners[1], corners[5]);  // Vertical edge: front-right
-      midpoints[10] = middleof(corners[2], corners[6]); // Vertical edge: back-right
-      midpoints[11] = middleof(corners[3], corners[7]); // Vertical edge: back-left
+      midpoints[8] = middleof(_corners[0], _corners[4]);  // Vertical edge: front-left
+      midpoints[9] = middleof(_corners[1], _corners[5]);  // Vertical edge: front-right
+      midpoints[10] = middleof(_corners[2], _corners[6]); // Vertical edge: back-right
+      midpoints[11] = middleof(_corners[3], _corners[7]); // Vertical edge: back-left
 
       // Midpoints of faces
       midpoints[12] = middleof(midpoints[0], midpoints[2]); // Bottom face center
@@ -2353,7 +2495,7 @@ class OctreeNode {
 
       // Child 0: Bottom-front-left (following counter-clockwise convention)
       childCorners[0] = {
-        corners[0],      // Bottom-front-left
+        _corners[0],      // Bottom-front-left
         midpoints[0],    // Bottom-front-middle
         midpoints[12],   // Bottom-center
         midpoints[3],    // Bottom-left-middle
@@ -2366,7 +2508,7 @@ class OctreeNode {
       // Child 1: Bottom-front-right
       childCorners[1] = {
         midpoints[0],    // Bottom-front-middle
-        corners[1],      // Bottom-front-right
+        _corners[1],      // Bottom-front-right
         midpoints[1],    // Bottom-right-middle
         midpoints[12],   // Bottom-center
         midpoints[14],   // Front-center
@@ -2379,7 +2521,7 @@ class OctreeNode {
       childCorners[2] = {
         midpoints[12],   // Bottom-center
         midpoints[1],    // Bottom-right-middle
-        corners[2],      // Bottom-back-right
+        _corners[2],      // Bottom-back-right
         midpoints[2],    // Bottom-back-middle
         midpoints[18],   // Center
         midpoints[15],   // Right-center
@@ -2392,7 +2534,7 @@ class OctreeNode {
         midpoints[3],    // Bottom-left-middle
         midpoints[12],   // Bottom-center
         midpoints[2],    // Bottom-back-middle
-        corners[3],      // Bottom-back-left
+        _corners[3],      // Bottom-back-left
         midpoints[17],   // Left-center
         midpoints[18],   // Center
         midpoints[16],   // Back-center
@@ -2405,7 +2547,7 @@ class OctreeNode {
         midpoints[14],   // Front-center
         midpoints[18],   // Center
         midpoints[17],   // Left-center
-        corners[4],      // Top-front-left
+        _corners[4],      // Top-front-left
         midpoints[4],    // Top-front-middle
         midpoints[13],   // Top-center
         midpoints[7]     // Top-left-middle
@@ -2418,7 +2560,7 @@ class OctreeNode {
         midpoints[15],   // Right-center
         midpoints[18],   // Center
         midpoints[4],    // Top-front-middle
-        corners[5],      // Top-front-right
+        _corners[5],      // Top-front-right
         midpoints[5],    // Top-right-middle
         midpoints[13]    // Top-center
       };
@@ -2431,7 +2573,7 @@ class OctreeNode {
         midpoints[16],   // Back-center
         midpoints[13],   // Top-center
         midpoints[5],    // Top-right-middle
-        corners[6],      // Top-back-right
+        _corners[6],      // Top-back-right
         midpoints[6]     // Top-back-middle
       };
 
@@ -2444,14 +2586,14 @@ class OctreeNode {
         midpoints[7],    // Top-left-middle
         midpoints[13],   // Top-center
         midpoints[6],    // Top-back-middle
-        corners[7]       // Top-back-left
+        _corners[7]       // Top-back-left
       };
 
       return childCorners;
     }
 
     bool contains(const Point3D& point) const {
-      const double EPSILON = 1e-10;
+      const double EPSILON = 1e-14;
 
       // Helper function to calculate dot product
       auto dot = [](const Point3D & a, const Point3D & b) -> double {
@@ -2487,9 +2629,9 @@ class OctreeNode {
       // Check if point is on the correct side of all faces
       for(const auto& face : faces) {
         // Get three points from the face to define the plane
-        const Point3D& v0 = corners[face[0]];
-        const Point3D& v1 = corners[face[1]];
-        const Point3D& v2 = corners[face[2]];
+        const Point3D& v0 = _corners[face[0]];
+        const Point3D& v1 = _corners[face[1]];
+        const Point3D& v2 = _corners[face[2]];
 
         // Calculate face normal using cross product (pointing outward)
         Point3D edge1 = makeVector(v0, v1);
@@ -3008,72 +3150,16 @@ using namespace femus;
 
 int main (int argc, char** args) {
 
-  FemusInit mpinit (argc, args, MPI_COMM_WORLD);
+//   FemusInit mpinit (argc, args, MPI_COMM_WORLD);
   //TODO check what happens when we switch from OCT to double and we do basic operation like addition, subtraction, multiprecision, exponent etc.
 
   typedef cpp_bin_float_oct Type;
-  unsigned int m = 0;
-  unsigned int n = 0;
   int s = 0;
   Type k, b, d, a = 0, c = 1;
+  unsigned int m=1;
+  unsigned int n=1;
 
-  std::cout.precision(50);
-
-  double d1,d2,d3,d4,d5,d6;
-  Type T1,T2,T3,T4,T5,T6;
-
-
-
-  double aa = sqrt(2);
-  Type   bb = Type(aa);
-  cout << " bb = " << bb <<endl;
-  bb = sqrt (Type(2)) ;
-  cout << " bb = " << bb <<endl;
-
-  Type cc = sqrt(2) - bb ;
-  cout << " c = " << cc <<endl;
-
-  cc = sqrt(Type(2)) - bb ;
-  cout << " c = " << cc <<endl;
-
-  cout << " 2./3. = " << 2./3. <<" 2/3 = " << static_cast<Type>(2)/static_cast<Type>(3);
-
-//   cc = (static_cast<Type>(3) - static_cast<Type>(2) * bb)/static_cast<Type>(2) ;
-//   cout << " c = " << cc <<endl;
-
-  return 0;
-
-  d1= 0.12345678901234567890123456789012345678901234567890;
-  d2= 0.23456789012345678901234567890123456789012345678901;
-  d3= 0.34567890123456789012345678901234567890123456789012;
-  d4= 0.78901234567890123456789012345678901234567890123456;
-
-  T1= 0.12345678901234567890123456789012345678901234567890;
-  T2= 0.23456789012345678901234567890123456789012345678901;
-  T3= 0.34567890123456789012345678901234567890123456789012;
-  T4= 0.78901234567890123456789012345678901234567890123456;
-
-  d1 = static_cast<double>(T1);
-  d2 = static_cast<double>(T2);
-  d3 = static_cast<double>(T3);
-  d4 = static_cast<double>(T4);
-
-  cout << " Double value = " << d1 << " " << d2 << " " << d3 << " " << d4 << endl;
-  cout << " Type value   = " << T1 << " " << T2 << " " << T3 << " " << T4 << endl;
-
-  cout << " Double addition = " << 0.5 + d3 + d4 << endl;
-  cout << " Type addition   = " << 0.5 + T3 + T4 << endl;
-
-  cout << " Double subtraction = " << d1 - d2 << "   " << 0.5 - d3 << endl;
-  cout << " Type subtraction   = " << T1 - T2 << "   " << static_cast<Type>(0.5) - T3 << endl;
-
-  cout << " Double multplication = " << d1*d2 << "   " << d4/d3 << endl;
-  cout << " Type multiplication  = " << T1*T2 << "   " << T4/T3 << endl;
-
-  cout << " Double sqrt = " << sqrt(d1) << "   " << endl;
-  cout << " Type sqrt   = " << sqrt(T1) << "   " << endl;
-  cout << " Type sqrt in= " << static_cast<double>(sqrt(T1)) << "   " << endl;
-return 0;
+  std::cout.precision(20);
 
   PointT <Type> p1, p2, p3;
   p1 = { static_cast<Type>(0.), static_cast<Type>(0.4471) };
@@ -3087,8 +3173,8 @@ return 0;
   std::vector<std::vector<double>>case_summary;
 
   // Circle parameters
-  double centerX = 0.5;
-  double centerY = 0.5;
+  double centerX = 0.5 ;
+  double centerY = 0.5 ;
   double radius = 0.397;
 //  double radius = 0.19;
 //  Mesh parameters
@@ -3115,8 +3201,7 @@ return 0;
   std::vector<double> A = {1., 0., 1., -1., -1., 0.342391}; //ax^2+bxy+cy^2+dx+ey+f =0
 //     std::vector<double> A = {1., 0., 1., -1., -1., 0.46};
 
-
-  int maxDepth = 5;
+  int maxDepth = 6;
   int degree = 1;
   double percent = -1;
   //   std::vector<OctreeNode<Type>> roots;
@@ -3128,9 +3213,9 @@ return 0;
 //     return 1;
   // Loop through the mesh
 
-  int nd = 8;  // Number of divisions per side
+  int nd = 9;  // Number of divisions per side
 
-  unsigned nlevel = 6;
+  unsigned nlevel = 7;
   std::vector<double> ndLevel(nlevel);
   std::vector<double> absError(nlevel);
 
@@ -3144,7 +3229,7 @@ return 0;
           triangleIndex++;
 
           cout << " ======= Triangle ====== " << triangleIndex << endl;
-          double x1, y1, x2, y2, x3, y3, area ;
+          double x1, y1, x2, y2, x3, y3, area, jacobian ;
           bool normal = true;
 
           if(t == 0) {
@@ -3188,6 +3273,8 @@ return 0;
 //                 }
 
           xv = {{x1, x2, x3}, {y1, y2, y3}};  //physical triangle
+          jacobian = fabs((x2-x1)*(y3-y1)-(x3-x1)*(y2-y1));
+
 
           cout << "Physical triangle = (" << x1 << ", " << y1 << "), (" << x2 << ", " << y2 << "), (" << x3 << ", " << y3 << ") " << endl;
 
@@ -3202,7 +3289,7 @@ return 0;
 
             if(intersections.size() == 4) {
               std::cout << "Triangle " << triangleIndex << " has four intersections - skipping : We assume the tri is inside. area = " << 0.5 * h*h << std::endl;
-              totalArea += 0.5 * h * h;  // Add full triangle area
+              totalArea += 0.5 * h * h;  // Add full triangle area  // TODO for integral we need to use a jacobian
               continue;
             }
 
@@ -3216,7 +3303,26 @@ return 0;
               Parabola <Type> parabola;
               Point3D searchP;
 
-              std::pair<std::vector<std::vector<double>>, std::vector<double>> xp = GetCellPointsFromQuadric(xv, A, nPoints, nInt);
+//               std::pair<std::vector<std::vector<double>>, std::vector<double>> xp = GetCellPointsFromQuadric(xv, A, nPoints, nInt);
+//               std::vector < std::vector < std::vector <double > > > aP(1);
+//               ProjectNodalToPolynomialCoefficients(aP[femType], xv, ielType, femType);
+//
+//               std::vector<int> xvsign(3);
+//               std::vector<int> unitxvsign(3);
+//               std::vector<std::vector<double>> xi(nPoints, std::vector<double>(2, 0.));
+//
+//               for(unsigned i = 0; i < nPoints; i++) {
+//                 bool inverseMapping = GetInverseMapping(femType, ielType, aP, xp.first[i], xi[i], 100);        //This maps the phsical points to {(-1,-1),(1,1)} box for quad. For triangle it maps to (0,0),(1,0),(0,1)
+//                 std::cout << " \nx[i] physical value " << i << " " << xp.first[i][0] << " " << xp.first[i][1] << std::endl;
+//                 std::cout << " x[i] value in reference " << i << " (" << xi[i][0] << ", " << xi[i][1] << ")" << std::endl;
+//
+//                 //       xi[i] = {0.5 * (xi[i][0] + 1.), 0.5 * (xi[i][1] + 1.)};                                        // //This maps the points to unit box. For quad
+//                 //       std::cout << "value in reference triangle : check if it works" << i << " " << xi[i][0] << " " << xi[i][1] << std::endl;
+//               }
+
+
+              auto [xp, ds, intersectedEdges] = GetCellPointsFromQuadricwithside(xv, A, nPoints, nInt);
+
               std::vector < std::vector < std::vector <double > > > aP(1);
               ProjectNodalToPolynomialCoefficients(aP[femType], xv, ielType, femType);
 
@@ -3225,12 +3331,9 @@ return 0;
               std::vector<std::vector<double>> xi(nPoints, std::vector<double>(2, 0.));
 
               for(unsigned i = 0; i < nPoints; i++) {
-                bool inverseMapping = GetInverseMapping(femType, ielType, aP, xp.first[i], xi[i], 100);        //This maps the phsical points to {(-1,-1),(1,1)} box for quad. For triangle it maps to (0,0),(1,0),(0,1)
-                std::cout << " \nx[i] physical value " << i << " " << xp.first[i][0] << " " << xp.first[i][1] << std::endl;
+                bool inverseMapping = GetInverseMapping(femType, ielType, aP, xp[i], xi[i], 100);        //This maps the phsical points to {(-1,-1),(1,1)} box for quad. For triangle it maps to (0,0),(1,0),(0,1)
+                std::cout << " \nx[i] physical value " << i << " " << xp[i][0] << " " << xp[i][1] << std::endl;
                 std::cout << " x[i] value in reference " << i << " (" << xi[i][0] << ", " << xi[i][1] << ")" << std::endl;
-
-                //       xi[i] = {0.5 * (xi[i][0] + 1.), 0.5 * (xi[i][1] + 1.)};                                        // //This maps the points to unit box. For quad
-                //       std::cout << "value in reference triangle : check if it works" << i << " " << xi[i][0] << " " << xi[i][1] << std::endl;
               }
 
               cout << " xv sign = {" ;
@@ -3281,13 +3384,14 @@ return 0;
 
               }
               else {
+                PointT <Type> r1, r2, r3;
                 cout << " it is a Horizontal parabola .......@.......@........@........" << endl;
-                p1 = { static_cast<Type>(xi[0][1]), static_cast<Type>(xi[0][0]) };
-                p2 = { static_cast<Type>(xi[2][1]), static_cast<Type>(xi[2][0]) };
-                p3 = { static_cast<Type>(xi[1][1]), static_cast<Type>(xi[1][0]) };
-                cout <<  "( " << p1.x << "," << p1.y << " )" << " , ( " << p2.x << "," << p2.y << " )" << " , ( " << p3.x << "," << p3.y << " ) " << endl;
+                r1 = { static_cast<Type>(xi[0][1]), static_cast<Type>(xi[0][0]) };
+                r2 = { static_cast<Type>(xi[2][1]), static_cast<Type>(xi[2][0]) };
+                r3 = { static_cast<Type>(xi[1][1]), static_cast<Type>(xi[1][0]) };
+                cout <<  "( " << r1.x << "," << r1.y << " )" << " , ( " << r2.x << "," << r2.y << " )" << " , ( " << r3.x << "," << r3.y << " ) " << endl;
 
-                Parabola <Type> parabola = get_parabola_equation(p1, p2, p3);
+                Parabola <Type> parabola = get_parabola_equation(r1, r2, r3);
                 cout << parabola.k << "y^2+ " << parabola.b << "y+ " << parabola.d << "+x =0 " << endl;
 
                 //use horizotal parabola for the normal
@@ -3301,46 +3405,25 @@ return 0;
 //                           p3.y = -parabola.k * p3.x * p3.x - parabola.b * p3.x - parabola.d ;
               }
 
-              int checksign = checkVectorRelation(xvsign, unitxvsign);   //TODO checkVectorRelation output int
+              int checksign = checkVectorRelation(xvsign, unitxvsign);
               if(checksign == 1) {
                 normal = false;
               }
 
-              double ref_formula_area =0;
-              if(normal) {   //using second area beacause we want to use the formula on q directly after the transformation. TODO or should we always use first area integral with P
-                ref_formula_area = static_cast<double>(find_trig_area_2intersection_formula_second<Type>(0, 0, 0, 0, 1, old_table,  q1,  q2, q3));
-              }
 
-              else {
-                ref_formula_area = 0.5 - static_cast<double>(find_trig_area_2intersection_formula_second<Type>(0, 0, 0, 0, 1, old_table,  q1,  q2, q3));
-              }
-
-//               Type ref_formula_area(0);
-//               if(normal) {   //using second area beacause we want to use the formula on q directly after the transformation. TODO or should we always use first area integral with P
-//                 ref_formula_area = find_trig_area_2intersection_formula_second<Type>(0, 0, 0, 0, 1, old_table,  q1,  q2, q3);
+              double ref_formula_area = 0;
+//               if(normal) {   //TODO we change m and n here.
+//                 ref_formula_area = static_cast<double>(find_trig_area_2intersection_formula_second<Type>(m, n, 0, 0, 1, old_table,  q1,  q2, q3));
 //               }
 //
-//               else {
-//                 ref_formula_area = static_cast<Type>(0.5) - find_trig_area_2intersection_formula_second<Type>(0, 0, 0, 0, 1, old_table,  q1,  q2, q3);
+//               else { //TODO we change m and n here. Also we need to change 0.5 to (1. / (m + n + 2.) * (n + 1.)
+// //                 ref_formula_area = 0.5 - static_cast<double>(find_trig_area_2intersection_formula_second<Type>(m, n, 0, 0, 1, old_table,  q1,  q2, q3));   //for x^2 we need to change here.
+//                 ref_formula_area = 1. / (m + n + 2.) * (n + 1.) - static_cast<double>(find_trig_area_2intersection_formula_second<Type>(m, n, 0, 0, 1, old_table,  q1,  q2, q3));   //for x^2 we need to change here.
 //               }
 
+              cout<< " Norrrrrrrrrrrrrrrrrrrrrrrrrrrrrmal = " <<normal<<endl;
 
-
-//                         if (normal){   //using second area beacause we want to use the formula on q directly after the transformation. TODO or should we always use first area integral with P
-//                           ref_formula_area = find_trig_area_2intersection_formula_first<Type>(0, 0, 0, 0, 1, actual_table,  p1,  p2, p3);
-//                         }
-//
-//                         else{
-//                           ref_formula_area = 0.5 - find_trig_area_2intersection_formula_first<Type>(0, 0, 0, 0, 1, actual_table,  p1,  p2, p3);
-//                         }
-
-
-
-
-
-
-              totalformulaArea += static_cast<double>(ref_formula_area) * h * h;
-
+              totalformulaArea += static_cast<double>(ref_formula_area) * h * h;  //multiplying h^2 only works on area. For monomial I need to multiply a jacobian. TODO how do I find the jacobian here?
 
               std::vector<double>weightCF, interp_point_weights, interp_point_integrals;
 
@@ -3351,25 +3434,24 @@ return 0;
               cout << "actual table " << actual_table << "result " << result << endl;
 
               if(result) {
+
                 std::vector<double> interp_point = {searchP.x, searchP.y, searchP.z};
                 std::vector<std::vector<double>> corners(8, std::vector<double>(3));
 
-                for(size_t i = 0; i < result->corners.size(); ++i) {
-                  corners[i][0] = result->corners[i].x;
-                  corners[i][1] = result->corners[i].y;
-                  corners[i][2] = result->corners[i].z;
+                for(size_t i = 0; i < result->_corners.size(); ++i) {
+                  corners[i][0] = result->_corners[i].x;
+                  corners[i][1] = result->_corners[i].y;
+                  corners[i][2] = result->_corners[i].z;
                 }
 
 
                 PointT <Type> pp1, pp2, pp3;     //This is just to print the parabolas on the corner
-                for(size_t i = 0; i < result->corners.size(); ++i) {
+                for(size_t i = 0; i < result->_corners.size(); ++i) {
                   get_p1_p2_p3(actual_table, corners[i], pp1, pp2, pp3);
                   parabola = get_parabola_equation(pp1, pp2, pp3);
                   std::cout << parabola.k << "x^2+" << parabola.b << "x+" << parabola.d << " + y = 0 " << std::endl;
                 }
 
-
-                std::vector<double> interp_point_weights;
 //                             trilinear_interpolation_vector_deformed(corners, result->cornerWeights,interp_point, interp_point_weights);
 
 
@@ -3378,7 +3460,7 @@ return 0;
 
 //                             trilinear_interpolation_vector_deformed(corners, result->cornerAreas, interp_point, interp_point_weights);
 
-                trilinear_interpolation_vector_remap_to_unitcube(actual_table, corners, result->cornerAreas, interp_point, interp_point_weights);
+                trilinear_interpolation_vector_remap_to_unitcube(actual_table, corners, result->_cornerAreas, interp_point, interp_point_weights);
 
                 std::cout << " interpolated integrals = ";
                 for(size_t j = 0; j < interp_point_weights.size(); ++j) {
@@ -3391,7 +3473,7 @@ return 0;
                 /*
                                 trilinear_interpolation_vector_remap_to_unitcube(actual_table,corners, result->cornerWeights, interp_point, interp_point_weights);*/
 
-                GetTriquadraticInterpolationVector(actual_table, corners, result->cornerWeights, result->midWeights, interp_point, interp_point_weights);
+                GetTriquadraticInterpolationVector(actual_table, corners, result->_cornerWeights, result->_midWeights, interp_point, interp_point_weights);
 
                 std::cout << " interpolated weights = ";
                 for(size_t j = 0; j < interp_point_weights.size(); ++j) {
@@ -3399,16 +3481,48 @@ return 0;
                 }
                 std::cout << " )" << std::endl;
 
-                std::vector<double>modified_weights(interp_point_weights.size());
+
+                //TODO this function will calculate the cutfem weight directly. comment it out
+//                  Pweights(s, a, c, actual_table, p1, p2, p3, interp_point_weights);
+
+                std::cout << " interpolated weights = ";
+                for(size_t j = 0; j < interp_point_weights.size(); ++j) {
+                  std::cout << interp_point_weights[j] << ", ";
+                }
+                std::cout << " )" << std::endl;
+
+
+                std::vector<std::vector<double>>badcase;
+                std::vector<std::vector<double>>case_summary;
+
+                cout<< " Norrrrrrrrrrrrrrrrrrrrrrrrrrrrrmal = " <<normal<<endl;
 
                 if(!normal) {
                   for(unsigned aq = 0; aq < interp_point_weights.size(); aq++) {
 
                     interp_point_weights[aq] = 1. - interp_point_weights[aq];
                   }
+                    std::cout << " Modified interpolated weights = ";
+                    for(size_t j = 0; j < interp_point_weights.size(); ++j) {
+                      std::cout << interp_point_weights[j] << ", ";
+                    }
+                    std::cout << " )" << std::endl;
                 }
 
-                area = GaussIntegral(0, 0, Xg.data(), Yg.data(), interp_point_weights, Jg.data());
+
+
+                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                area = GaussIntegral(m, n, Xg.data(), Yg.data(), interp_point_weights, Jg.data());
+                cout<< " $$$$$$$$$$$$$ The area calculated with cutFEM is = " << area << endl;
+
+
+                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
 
 
                 totalArea += area;  // No need to scale it. jacobian does it for us.
@@ -3464,14 +3578,36 @@ return 0;
           else if(isPointInCircle(x1, y1, centerX, centerY, radius) &&
                   isPointInCircle(x2, y2, centerX, centerY, radius) &&
                   isPointInCircle(x3, y3, centerX, centerY, radius)) {
-            totalArea += 0.5 * h * h;  // Add full triangle area
-            totalformulaArea += 0.5 * h * h;
+              std::vector<double> phi, gradPhi;
+              std::vector<double> Xg(femQuad->GetGaussPointNumber(), 0);
+              std::vector<double> Yg(femQuad->GetGaussPointNumber(), 0);
+              std::vector<double> Jg(femQuad->GetGaussPointNumber(), 0);
+              std::vector<double> one(femQuad->GetGaussPointNumber(), 1);
+              for(unsigned ig = 0; ig < femQuad->GetGaussPointNumber(); ig++) {
+                // *** get gauss point weight, test function and test function partial derivatives ***
+                femQuad->Jacobian(xv, ig, Jg[ig], phi, gradPhi);
+                for(unsigned i = 0; i < phi.size(); i++) {
+                  Xg[ig] += phi[i] * xv[0][i];
+                  Yg[ig] += phi[i] * xv[1][i];
+                }
+//                           std::cout <<"checking gauss points and jacobian"<<ig<<" "<<Xg[ig]<<" "<<Yg[ig]<<" "<<Jg[ig]<<std::endl;
+              }
+
+              area = GaussIntegral(m, n, Xg.data(), Yg.data(), one, Jg.data());
+
+
+              totalArea += area;
+
+//             totalArea += 0.5 * h * h;  // Add full triangle area
+//             totalformulaArea += 0.5 * h * h;
+               totalformulaArea += area;
+
 
             std::vector<std::pair<double, double>> emptyIntersections;
 //                     printTriangleState(triangleIndex, x1, y1, x2, y2, x3, y3,
 //                                      centerX, centerY, radius,
 //                                      emptyIntersections, emptyIntersections, totalArea,area,vertical);
-            std::cout << "It is inside. Scaled area: " << 0.5 * h*h << std::endl;
+            std::cout << "It is inside. Scaled area: " << area << std::endl;
             cout << " Cumulative area = " << totalArea << endl;
           }
           else {
@@ -3488,7 +3624,16 @@ return 0;
     }
 
     // Calculate errors
-    double analyticalArea = M_PI * radius * radius;
+//     double analyticalArea = M_PI * radius * radius;
+
+//     double analyticalArea =  0.24757163831577167;  //x
+
+    double analyticalArea = 0.495143276466652;  //x+y
+
+//     double analyticalArea = 0.1438869043305328; //x^2
+//     double analyticalArea =  0.2877738086610654; //x^2+y^2
+//     double analyticalArea = 0.49514327765121646;
+
     double absoluteError = fabs(totalArea - analyticalArea);
     double relativeError = absoluteError / analyticalArea;
     double formulaAbsError = fabs(totalformulaArea - analyticalArea);
